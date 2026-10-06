@@ -50,7 +50,8 @@ corpus audio from Hugging Face, and the model from
 
 The model weights and the corpus audio. The ONNX is 136 MB, over GitHub's 100 MB per-file
 limit, so it is published to the Hugging Face Hub instead — see
-`exploration/upload_model_to_hf.py`, which you run once with your own token. `sample.tsv`
+`exploration/upload_model_to_hf.py`, which you run once with your own token
+(`hf auth login` first). `sample.tsv`
 *is* tracked, because it names exactly which 250 clips every result used.
 
 ## Attribution

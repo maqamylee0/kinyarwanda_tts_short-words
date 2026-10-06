@@ -64,8 +64,8 @@ Everything lands in `./kinya_bench_cache/` and is reused afterwards.
 **The model must be published once before that works.** It is not in git, by necessity:
 
 ```bash
-huggingface-cli login            # or export HF_TOKEN=hf_...
-python exploration/upload_model_to_hf.py
+hf auth login                    # or export HF_TOKEN=hf_...
+uv run exploration/upload_model_to_hf.py
 ```
 
 Until then, point at a local copy instead:

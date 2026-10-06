@@ -12,8 +12,8 @@ CC-BY-4.0 requires.
 Run it yourself — it needs YOUR token, which is not something to hand to a script that
 anyone else runs:
 
-    huggingface-cli login          # or export HF_TOKEN=hf_...
-    python exploration/upload_model_to_hf.py
+    hf auth login                  # or export HF_TOKEN=hf_...
+    uv run exploration/upload_model_to_hf.py
 
 Then the notebook finds it with no further configuration, because the default repo id
 below is also its default. Override with KINYA_HF_MODEL_REPO on both sides to use another.
@@ -87,8 +87,13 @@ def main() -> int:
     try:
         api.whoami()
     except Exception:
-        print("Not logged in to Hugging Face. Run `huggingface-cli login`, or set HF_TOKEN.",
-              file=sys.stderr)
+        print(
+            "Not logged in to Hugging Face.\n"
+            "  hf auth login           # the CLI is `hf`; `huggingface-cli` was removed in\n"
+            "                          # huggingface_hub v1.0\n"
+            "or pass a token directly, which also works under `uv run`:\n"
+            "  HF_TOKEN=hf_xxx uv run exploration/upload_model_to_hf.py",
+            file=sys.stderr)
         return 1
 
     print(f"uploading {src} ({src.stat().st_size / 1e6:.0f} MB) -> {REPO_ID}")
