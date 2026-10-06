@@ -584,13 +584,19 @@ def _(mo):
 
 # ── Cell 22: fidelity check ──────────────────────────────────────────────────
 @app.cell
-def _(ENGINES, SR, clips, np, speech_seconds, synth_onnx, synth_torch):
+def _(BUCKETS, ENGINES, SR, clips, np, speech_seconds, synth_onnx, synth_torch):
     if synth_torch is None:
         print("torch engine unavailable — fidelity check skipped")
         fidelity = []
     else:
         fidelity = []
-        _texts = [c for c in clips if not c["has_digits"]][:12]
+        # Stratified, NOT the first 12: the rushing lives in the short regime, so a
+        # fidelity check that only sees ordinary sentences proves nothing about where
+        # the problem actually is.
+        _pool = [c for c in clips if not c["has_digits"]]
+        _texts = []
+        for _lo, _hi, _ in BUCKETS:
+            _texts += [c for c in _pool if _lo <= c["words"] <= _hi][:3]
         print(f"{'clip':<16}{'words':>6}{'onnx s':>9}{'torch s':>9}{'delta':>8}"
               f"{'samples eq':>12}{'corr':>9}")
         for _c in _texts:
@@ -619,9 +625,15 @@ def _(mo):
         """
         ## 7. Isolated words — the untrained case
 
-        No human reference exists: the corpus holds 2 single-word rows out of 17,969, and
-        both are the spreadsheet error string `Err:508`. So this section **cannot be
-        scored**, only listened to.
+        No *human* reference exists: the corpus holds 2 single-word rows out of 17,969, and
+        both are the spreadsheet error string `Err:508`. So there is nothing to score the
+        models against for correctness here.
+
+        But the engines can still be scored **against each other**, and that is the question
+        that matters: if C4IR's own checkpoint rushes isolated words exactly as our export
+        does, the behaviour is theirs. If only ours does, it is the conversion's. The two
+        tables below answer that; the players are for judging articulation, which no
+        duration measurement catches.
 
         The carrier puts the word **last, before a full stop**, so it picks up phrase-final
         lengthening — unlike `vuga <word> neza`, which buries it mid-phrase where it is
@@ -666,20 +678,84 @@ def _(ENGINES, SR, mo, np, speech_seconds, word, wsid, wspeed):
     return
 
 
-# ── Cell 26: level across voices ─────────────────────────────────────────────
+# ── Cell 26: isolated words, measured, every engine ──────────────────────────
 @app.cell
-def _(np, synth_onnx):
-    WORDS = ["icunga", "amazi", "inka", "umwana", "ishuri", "ibirayi", "umuhinzi", "ifumbire"]
+def _(ENGINES, SR, np, re, speech_seconds):
+    WORDS = ["icunga", "amazi", "inka", "umwana", "ishuri", "ibirayi", "umuhinzi",
+             "ifumbire", "umuneke", "inanasi"]
 
-    print("raw peak on isolated words, ONNX (before normalisation)")
-    print(f"{'word':<12}{'Female 1':>10}{'Female 2':>10}{'Male':>8}")
+    def syllables(w):
+        """Vowel groups. Kinyarwanda is near-perfectly CV, so this tracks syllables
+        closely — but it is a proxy, and only valid on text without digits."""
+        return max(1, len(re.findall(r"[aeiouAEIOU]+", w)))
+
+    # Both engines on the same isolated words. If C4IR's checkpoint rushes them too,
+    # the behaviour is theirs; if only ours does, it is the export's.
+    short_words = []
     peaks_by_word = {}
+    print("isolated words — speech seconds, s/syllable, and raw peak (before normalising)")
+    print(f"{'word':<11}{'syl':>4}" + "".join(
+        f"{n + ' s':>10}{n + ' s/syl':>12}{n + ' peak':>11}" for n in ENGINES))
     for _w in WORDS:
-        _p = [float(np.abs(synth_onnx(_w, sid=s)).max()) for s in (0, 1, 2)]
-        peaks_by_word[_w] = _p
-        print(f"{_w:<12}{_p[0]:>10.3f}{_p[1]:>10.3f}{_p[2]:>8.3f}"
-              f"{'   <- very quiet' if _p[0] < 0.10 else ''}")
-    return WORDS, peaks_by_word
+        _syl = syllables(_w)
+        _rec = dict(word=_w, syllables=_syl)
+        _line = f"{_w:<11}{_syl:>4}"
+        for _name, _fn in ENGINES.items():
+            _a = _fn(_w, sid=0, length_scale=1.0, noise_scale=0.0)
+            _s = speech_seconds(_a, SR)
+            _pk = float(np.abs(_a).max())
+            _rec[f"{_name}_s"] = _s
+            _rec[f"{_name}_s_per_syllable"] = _s / _syl
+            _rec[f"{_name}_peak"] = _pk
+            _line += f"{_s:>10.3f}{_s / _syl:>12.3f}{_pk:>11.3f}"
+        short_words.append(_rec)
+        peaks_by_word[_w] = [float(np.abs(ENGINES["onnx"](_w, sid=s)).max())
+                             for s in (0, 1, 2)]
+        print(_line)
+
+    for _name in ENGINES:
+        _m = float(np.mean([r[f"{_name}_s_per_syllable"] for r in short_words]))
+        print(f"\n{_name}: mean {_m:.3f} s/syllable on isolated words")
+    print("For scale: the actress averages 0.129 s/syllable inside a sentence and")
+    print("0.223 on a genuinely isolated word (n=6, a different corpus).")
+    return WORDS, peaks_by_word, short_words, syllables
+
+
+# ── Cell 26b: does the export agree with the original ON SHORT WORDS? ────────
+@app.cell
+def _(SR, WORDS, np, speech_seconds, syllables, synth_onnx, synth_torch):
+    # The fidelity check that matters. Section 6 compares the engines on sentences;
+    # this one compares them exactly where the failure is claimed to live.
+    if synth_torch is None:
+        print("torch engine unavailable — short-word fidelity check skipped")
+        short_fidelity = []
+    else:
+        short_fidelity = []
+        print("isolated words: our export vs C4IR's checkpoint, noise_scale=0")
+        print(f"{'word':<11}{'onnx s':>9}{'torch s':>9}{'delta':>8}"
+              f"{'samples eq':>12}{'corr':>9}")
+        for _w in WORDS:
+            _o = synth_onnx(_w, sid=0, noise_scale=0.0)
+            _t = synth_torch(_w, sid=0, noise_scale=0.0)
+            _n = min(len(_o), len(_t))
+            _corr = float(np.corrcoef(_o[:_n], _t[:_n])[0, 1]) if _n > 1 else float("nan")
+            _os, _ts = speech_seconds(_o, SR), speech_seconds(_t, SR)
+            short_fidelity.append(dict(word=_w, syllables=syllables(_w),
+                                       onnx_s=_os, torch_s=_ts,
+                                       samples_onnx=len(_o), samples_torch=len(_t),
+                                       corr=_corr))
+            print(f"{_w:<11}{_os:>9.3f}{_ts:>9.3f}{_os - _ts:>8.3f}"
+                  f"{str(len(_o) == len(_t)):>12}{_corr:>9.5f}")
+        _same = sum(f["samples_onnx"] == f["samples_torch"] for f in short_fidelity)
+        print(f"\nidentical sample counts: {_same}/{len(short_fidelity)}")
+        if _same == len(short_fidelity):
+            print("The export reproduces the original's timing on isolated words exactly,")
+            print("so the rushing is C4IR's model, not our conversion.")
+        else:
+            print("The two disagree on isolated words — the export changes timing in")
+            print("exactly the regime under study, and the findings need re-measuring")
+            print("against the torch column.")
+    return (short_fidelity,)
 
 
 # ── Cell 27: record the run ──────────────────────────────────────────────────
@@ -692,7 +768,8 @@ def _(mo):
 
 @app.cell
 def _(DATASET_REPO, ENGINES, ONNX_REPO, RESULTS, TORCH_ERROR, TORCH_REPO, by_len,
-      datetime, fidelity, json, measured, np, os, peaks_by_word, save, speed, timezone):
+      datetime, fidelity, json, measured, np, os, peaks_by_word, save, short_fidelity,
+      short_words, speed, timezone):
     # BENCH_SAVE=1 records the run without the button, so a headless export is
     # reproducible for the paper.
     if save.value or os.environ.get("BENCH_SAVE"):
@@ -717,6 +794,8 @@ def _(DATASET_REPO, ENGINES, ONNX_REPO, RESULTS, TORCH_ERROR, TORCH_REPO, by_len
             },
             "by_length": by_len,
             "onnx_vs_torch_fidelity": fidelity,
+            "short_word_timing": short_words,
+            "onnx_vs_torch_fidelity_short_words": short_fidelity,
             "isolated_word_peaks": peaks_by_word,
             "per_clip": measured,
         }

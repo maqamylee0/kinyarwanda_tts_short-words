@@ -70,6 +70,28 @@ Comparing a bare word against a `vuga <word> neza` carrier told us nothing, beca
 carrier's average rate folds in two other words. Either measure the target word alone, or
 expose per-token durations and cut precisely.
 
+## Separating the model from our conversion
+
+Every measurement is taken twice: once on our ONNX export, once on C4IR's own PyTorch
+checkpoint, from the same token ids. Without the second engine, a finding about "the
+model" could equally be a finding about our export of it.
+
+The comparison is run at `noise_scale=0` in two places, and both are needed:
+
+- **On sentences** (section 6), stratified across the length buckets rather than taking
+  whichever clips come first.
+- **On isolated words** (section 7), which is the one that actually settles the question.
+  The rushing is claimed to live in the short regime, so verifying the export only on
+  ordinary sentences would leave exactly the disputed case unverified.
+
+A faithful export gives **identical sample counts**; the waveform correlation is secondary,
+because identical counts with a low correlation would mean same timing and different
+detail, while differing counts mean the duration predictor itself moved.
+
+If the two engines disagree on isolated words, the findings must be re-stated against the
+torch column, because the ONNX would then be an artefact in precisely the regime under
+study.
+
 ## Sampling
 
 Stratified by `(voice, utterance-length bucket)`, buckets `≤2 / 3 / 4–6 / 7–12 / 13+`
