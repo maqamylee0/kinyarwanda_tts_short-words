@@ -194,24 +194,59 @@ def _(Path, mo, os, urllib):
         for _dest, _rel in _FROM_GITHUB.items():
             ensure_from_github(_dest, _rel)
 
-    # The model, which GitHub cannot host.
+    # The model is the one asset GitHub cannot store (136 MB vs a 100 MB per-file limit),
+    # so it lives on the Hugging Face Hub instead — the natural home for weights, and where
+    # the upstream checkpoint already is. Resolution: local copy, then KINYA_MODEL, then
+    # download from the Hub into the cache.
+    HF_MODEL_REPO = os.environ.get("KINYA_HF_MODEL_REPO", "maqamylee0/kinya-flex-tts-onnx")
+    MODEL_URL = os.environ.get(
+        "KINYA_MODEL_URL",
+        f"https://huggingface.co/{HF_MODEL_REPO}/resolve/main/kinya_flex_tts.onnx",
+    )
+
     if not MODEL.exists() and os.environ.get("KINYA_MODEL"):
         MODEL = Path(os.environ["KINYA_MODEL"]).expanduser().resolve()
+
     if not MODEL.exists():
-        raise RuntimeError(
-            f"Model not found at {MODEL}.\n"
-            "It is 136 MB, over GitHub's 100 MB per-file limit, so it is not in the repo.\n"
-            "Point at a local copy with:  KINYA_MODEL=/path/to/kinya_flex_tts.onnx\n"
-            "Build it with export_kinya_flex_tts_colab.ipynb if you do not have one."
-        )
+        print(f"model not local — downloading from {MODEL_URL}")
+        MODEL.parent.mkdir(parents=True, exist_ok=True)
+        tmp = MODEL.with_suffix(".onnx.part")
+        try:
+            with urllib.request.urlopen(MODEL_URL, timeout=120) as r:
+                total = int(r.headers.get("Content-Length") or 0)
+                done = step = 0
+                with open(tmp, "wb") as f:
+                    while True:
+                        chunk = r.read(1 << 20)
+                        if not chunk:
+                            break
+                        f.write(chunk)
+                        done += len(chunk)
+                        # every ~25 MB, so a captured log stays readable
+                        if done // (25 << 20) > step:
+                            step = done // (25 << 20)
+                            print(f"  {done / 1e6:.0f}"
+                                  + (f" / {total / 1e6:.0f}" if total else "") + " MB")
+            print(f"  {done / 1e6:.0f} MB done")
+            tmp.replace(MODEL)
+        except Exception as exc:
+            tmp.unlink(missing_ok=True)
+            raise RuntimeError(
+                f"Could not fetch the model from {MODEL_URL}\n  ({exc})\n"
+                "The model is 136 MB, over GitHub's 100 MB per-file limit, so it is not in "
+                "the git repo.\nEither:\n"
+                "  - point at a local copy:  KINYA_MODEL=/path/to/kinya_flex_tts.onnx\n"
+                "  - upload it once:         python exploration/upload_model_to_hf.py\n"
+                "  - or set KINYA_HF_MODEL_REPO / KINYA_MODEL_URL to where it actually lives"
+            ) from exc
     if not GOLDEN.exists():
         raise RuntimeError(f"Missing golden vectors: {GOLDEN}")
 
     RESULTS.mkdir(parents=True, exist_ok=True)
     DATA.mkdir(parents=True, exist_ok=True)
     (DATA / "wav").mkdir(exist_ok=True)
-    return (DATA, DEEPKIN, GOLDEN, GH_RAW, HF, LAYOUT, MODEL, PER_CELL, RESULTS, ROOT,
-            SEED, SR, VOICES, ensure_from_github)
+    return (DATA, DEEPKIN, GOLDEN, GH_RAW, HF, HF_MODEL_REPO, LAYOUT, MODEL, MODEL_URL,
+            PER_CELL, RESULTS, ROOT, SEED, SR, VOICES, ensure_from_github)
 
 
 # ── Cell 4: dataset section header ───────────────────────────────────────────

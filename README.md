@@ -35,11 +35,23 @@ as utterances shorten. Meanwhile the training corpus contains **2 single-word ro
 | `exploration/notebooks/data/sample.tsv` | the exact 250 clips every result uses |
 | `exploration/results/` | machine-readable output, one JSON per run |
 
+## Running it with nothing checked out
+
+```bash
+curl -sLO https://raw.githubusercontent.com/maqamylee0/kinyarwanda_tts_short-words/main/exploration/notebooks/01_rushing_bench.py
+marimo edit 01_rushing_bench.py
+```
+
+The notebook fetches the tokenizer, golden vectors and sample manifest from this repo, the
+corpus audio from Hugging Face, and the model from
+[`maqamylee0/kinya-flex-tts-onnx`](https://huggingface.co/maqamylee0/kinya-flex-tts-onnx).
+
 ## What is deliberately not here
 
-Model weights (135 MB, over GitHub's file limit) and the corpus audio. The notebook
-downloads its own stratified sample on first run, and `exploration/README.md` explains how
-to place the ONNX. `sample.tsv` is tracked so the selection stays reproducible.
+The model weights and the corpus audio. The ONNX is 136 MB, over GitHub's 100 MB per-file
+limit, so it is published to the Hugging Face Hub instead — see
+`exploration/upload_model_to_hf.py`, which you run once with your own token. `sample.tsv`
+*is* tracked, because it names exactly which 250 clips every result used.
 
 ## Attribution
 

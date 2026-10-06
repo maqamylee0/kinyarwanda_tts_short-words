@@ -41,21 +41,53 @@ BENCH_SAVE=1 marimo export html --no-include-code \
   exploration/notebooks/01_rushing_bench.py -o /tmp/rb.html
 ```
 
-The notebook locates the project root by searching upward for `kinya_flex_export/` and
-`kinyarwanda_tts_app/`, trying `$KINYA_ROOT`, then the notebook's own directory, then the
-working directory. It does **not** rely on `__file__`: marimo can run a notebook with no
-real path on disk (it appears as `marimo://notebook.py`), and `__file__` then resolves
-against `/`. If the search fails it raises with instructions rather than writing to the
-filesystem root. Launching from somewhere unusual:
+### Where it gets its inputs
+
+The notebook needs no checkout to run. Resolution order is: a local bundle (a folder with
+`assets/kinya_flex_tts.onnx` beside it), then this project checkout, then **download**.
+
+| asset | stored on | notes |
+|---|---|---|
+| tokenizer, golden vectors, `sample.tsv` | **GitHub**, this repo | 72 KB total, fetched over https |
+| corpus audio (250 clips) | **Hugging Face**, `C4IR-RW/kinya-ag-tts` | stratified sample, ~53 MB |
+| model ONNX | **Hugging Face**, `maqamylee0/kinya-flex-tts-onnx` | 136 MB, over GitHub's 100 MB per-file limit |
+
+So a collaborator with nothing checked out can do:
 
 ```bash
-KINYA_ROOT=/home/emmilina/Documents/kinyarwanda marimo edit exploration/notebooks/01_rushing_bench.py
+curl -sLO https://raw.githubusercontent.com/maqamylee0/kinyarwanda_tts_short-words/main/exploration/notebooks/01_rushing_bench.py
+marimo edit 01_rushing_bench.py
 ```
 
-First run downloads its own stratified sample (~250 clips, not the full 18k corpus) and
-clones the tokenizer. Both are reused afterwards. If `../kinya_ag_sample/sample.tsv`
-already exists it is **reused verbatim rather than redrawn**, so the sample stays fixed
-across runs.
+Everything lands in `./kinya_bench_cache/` and is reused afterwards.
+
+**The model must be published once before that works.** It is not in git, by necessity:
+
+```bash
+huggingface-cli login            # or export HF_TOKEN=hf_...
+python exploration/upload_model_to_hf.py
+```
+
+Until then, point at a local copy instead:
+
+```bash
+KINYA_MODEL=/path/to/kinya_flex_tts.onnx marimo edit exploration/notebooks/01_rushing_bench.py
+```
+
+### Environment overrides
+
+| variable | effect |
+|---|---|
+| `KINYA_MODEL` | path to a local ONNX, skipping the download |
+| `KINYA_HF_MODEL_REPO` | Hub repo holding the model (default `maqamylee0/kinya-flex-tts-onnx`) |
+| `KINYA_MODEL_URL` | full URL to the ONNX, overriding the repo |
+| `KINYA_BENCH` / `KINYA_ROOT` | force the bundle or project directory |
+| `KINYA_CACHE` | where downloads land (default `./kinya_bench_cache`) |
+| `KINYA_GH_RAW` | raw-content base URL, for a fork |
+| `BENCH_SAVE=1` | record the run to `results/` without the button |
+
+If `kinya_ag_sample/sample.tsv` already exists it is **reused verbatim rather than
+redrawn**, so the sample stays fixed across runs.
 
 ## Status
 
