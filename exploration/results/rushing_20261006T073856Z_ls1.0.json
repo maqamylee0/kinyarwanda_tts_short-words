@@ -1,0 +1,1616 @@
+{
+ "run_utc": "20261006T073856Z",
+ "notebook": "exploration/notebooks/01_rushing_bench.py",
+ "model": "C4IR-RW/kinya-flex-tts (ONNX fp32)",
+ "corpus": "C4IR-RW/kinya-ag-tts",
+ "config": {
+  "length_scale": 1.0,
+  "noise_scale": 0.0,
+  "metric": "speech-only duration, -32 dB relative gate",
+  "excluded": "rows containing digits"
+ },
+ "summary": {
+  "n": 190,
+  "median_ratio": 0.9451100388372367,
+  "mean_ratio": 1.28648041414271,
+  "p5": 0.6760093167701864,
+  "p95": 1.1179410294852572,
+  "frac_model_faster": 0.7210526315789474
+ },
+ "by_length": [
+  {
+   "bucket": "1-2",
+   "n": 33,
+   "median": 0.875,
+   "implied_length_scale": 1.1428571428571428
+  },
+  {
+   "bucket": "3",
+   "n": 43,
+   "median": 0.9320388349514562,
+   "implied_length_scale": 1.0729166666666667
+  },
+  {
+   "bucket": "4-6",
+   "n": 44,
+   "median": 0.9365862573099415,
+   "implied_length_scale": 1.0677073170731708
+  },
+  {
+   "bucket": "7-12",
+   "n": 41,
+   "median": 0.9597069597069597,
+   "implied_length_scale": 1.0419847328244274
+  },
+  {
+   "bucket": "13+",
+   "n": 29,
+   "median": 0.9864406779661017,
+   "implied_length_scale": 1.013745704467354
+  }
+ ],
+ "isolated_word_peaks": {
+  "icunga": [
+   0.04472032189369202,
+   0.35284411907196045,
+   0.2788640260696411
+  ],
+  "amazi": [
+   0.13511447608470917,
+   0.42756304144859314,
+   0.41457995772361755
+  ],
+  "inka": [
+   0.05277251824736595,
+   0.15524904429912567,
+   0.2075812816619873
+  ],
+  "umwana": [
+   0.1497054100036621,
+   0.3766767084598541,
+   0.3650166690349579
+  ],
+  "ishuri": [
+   0.18560007214546204,
+   0.4233618378639221,
+   0.5653403997421265
+  ],
+  "ibirayi": [
+   0.11127511411905289,
+   0.36112332344055176,
+   0.43491071462631226
+  ],
+  "umuhinzi": [
+   0.11469119042158127,
+   0.31496381759643555,
+   0.4624705910682678
+  ],
+  "ifumbire": [
+   0.07396336644887924,
+   0.37268340587615967,
+   0.5020495057106018
+  ]
+ },
+ "per_clip": [
+  {
+   "voice": "female",
+   "cid": "401",
+   "words": 2,
+   "human_s": 1.0625,
+   "model_s": 0.9775,
+   "ratio": 0.92
+  },
+  {
+   "voice": "female",
+   "cid": "1741",
+   "words": 2,
+   "human_s": 0.924375,
+   "model_s": 0.541875,
+   "ratio": 0.5862068965517242
+  },
+  {
+   "voice": "female",
+   "cid": "2679",
+   "words": 2,
+   "human_s": 1.19,
+   "model_s": 0.8075,
+   "ratio": 0.6785714285714286
+  },
+  {
+   "voice": "female",
+   "cid": "228",
+   "words": 2,
+   "human_s": 0.988125,
+   "model_s": 0.945625,
+   "ratio": 0.956989247311828
+  },
+  {
+   "voice": "female",
+   "cid": "4342",
+   "words": 2,
+   "human_s": 1.105,
+   "model_s": 0.91375,
+   "ratio": 0.8269230769230769
+  },
+  {
+   "voice": "female",
+   "cid": "1634",
+   "words": 2,
+   "human_s": 1.285625,
+   "model_s": 1.16875,
+   "ratio": 0.9090909090909091
+  },
+  {
+   "voice": "female",
+   "cid": "2441",
+   "words": 2,
+   "human_s": 1.136875,
+   "model_s": 0.796875,
+   "ratio": 0.7009345794392523
+  },
+  {
+   "voice": "female",
+   "cid": "2294",
+   "words": 2,
+   "human_s": 2.709375,
+   "model_s": 1.7,
+   "ratio": 0.6274509803921569
+  },
+  {
+   "voice": "female",
+   "cid": "1215",
+   "words": 2,
+   "human_s": 1.21125,
+   "model_s": 1.200625,
+   "ratio": 0.9912280701754387
+  },
+  {
+   "voice": "female",
+   "cid": "214",
+   "words": 2,
+   "human_s": 1.0625,
+   "model_s": 0.988125,
+   "ratio": 0.93
+  },
+  {
+   "voice": "female",
+   "cid": "2004",
+   "words": 2,
+   "human_s": 1.136875,
+   "model_s": 0.945625,
+   "ratio": 0.8317757009345794
+  },
+  {
+   "voice": "female",
+   "cid": "1859",
+   "words": 2,
+   "human_s": 1.04125,
+   "model_s": 0.99875,
+   "ratio": 0.9591836734693878
+  },
+  {
+   "voice": "female",
+   "cid": "1320",
+   "words": 2,
+   "human_s": 0.91375,
+   "model_s": 0.85,
+   "ratio": 0.9302325581395349
+  },
+  {
+   "voice": "female",
+   "cid": "1879",
+   "words": 2,
+   "human_s": 1.02,
+   "model_s": 0.8925,
+   "ratio": 0.875
+  },
+  {
+   "voice": "female",
+   "cid": "2342",
+   "words": 2,
+   "human_s": 1.774375,
+   "model_s": 1.306875,
+   "ratio": 0.7365269461077845
+  },
+  {
+   "voice": "female",
+   "cid": "1383",
+   "words": 3,
+   "human_s": 1.519375,
+   "model_s": 1.200625,
+   "ratio": 0.7902097902097903
+  },
+  {
+   "voice": "female",
+   "cid": "693",
+   "words": 3,
+   "human_s": 2.050625,
+   "model_s": 1.583125,
+   "ratio": 0.7720207253886009
+  },
+  {
+   "voice": "female",
+   "cid": "3738",
+   "words": 3,
+   "human_s": 1.328125,
+   "model_s": 1.46625,
+   "ratio": 1.104
+  },
+  {
+   "voice": "female",
+   "cid": "563",
+   "words": 3,
+   "human_s": 1.615,
+   "model_s": 1.434375,
+   "ratio": 0.888157894736842
+  },
+  {
+   "voice": "female",
+   "cid": "539",
+   "words": 3,
+   "human_s": 1.50875,
+   "model_s": 1.36,
+   "ratio": 0.9014084507042254
+  },
+  {
+   "voice": "female",
+   "cid": "1412",
+   "words": 3,
+   "human_s": 1.67875,
+   "model_s": 1.349375,
+   "ratio": 0.8037974683544304
+  },
+  {
+   "voice": "female",
+   "cid": "2665",
+   "words": 3,
+   "human_s": 1.306875,
+   "model_s": 0.860625,
+   "ratio": 0.6585365853658537
+  },
+  {
+   "voice": "female",
+   "cid": "1294",
+   "words": 3,
+   "human_s": 1.625625,
+   "model_s": 1.38125,
+   "ratio": 0.8496732026143791
+  },
+  {
+   "voice": "female",
+   "cid": "2844",
+   "words": 3,
+   "human_s": 1.4025,
+   "model_s": 1.306875,
+   "ratio": 0.9318181818181818
+  },
+  {
+   "voice": "female",
+   "cid": "1950",
+   "words": 3,
+   "human_s": 1.59375,
+   "model_s": 1.4875,
+   "ratio": 0.9333333333333333
+  },
+  {
+   "voice": "female",
+   "cid": "1203",
+   "words": 3,
+   "human_s": 1.455625,
+   "model_s": 1.275,
+   "ratio": 0.875912408759124
+  },
+  {
+   "voice": "female",
+   "cid": "2099",
+   "words": 3,
+   "human_s": 1.46625,
+   "model_s": 0.988125,
+   "ratio": 0.6739130434782609
+  },
+  {
+   "voice": "female",
+   "cid": "2092",
+   "words": 3,
+   "human_s": 1.21125,
+   "model_s": 1.0625,
+   "ratio": 0.8771929824561404
+  },
+  {
+   "voice": "female",
+   "cid": "560",
+   "words": 3,
+   "human_s": 1.243125,
+   "model_s": 1.25375,
+   "ratio": 1.0085470085470085
+  },
+  {
+   "voice": "female",
+   "cid": "2598",
+   "words": 3,
+   "human_s": 2.52875,
+   "model_s": 1.97625,
+   "ratio": 0.7815126050420168
+  },
+  {
+   "voice": "female",
+   "cid": "3186",
+   "words": 3,
+   "human_s": 1.413125,
+   "model_s": 1.1475,
+   "ratio": 0.8120300751879699
+  },
+  {
+   "voice": "female",
+   "cid": "446",
+   "words": 3,
+   "human_s": 1.349375,
+   "model_s": 1.264375,
+   "ratio": 0.937007874015748
+  },
+  {
+   "voice": "female",
+   "cid": "2652",
+   "words": 3,
+   "human_s": 1.4025,
+   "model_s": 1.200625,
+   "ratio": 0.8560606060606061
+  },
+  {
+   "voice": "female",
+   "cid": "440",
+   "words": 3,
+   "human_s": 1.29625,
+   "model_s": 1.25375,
+   "ratio": 0.9672131147540983
+  },
+  {
+   "voice": "female",
+   "cid": "2848",
+   "words": 3,
+   "human_s": 1.540625,
+   "model_s": 1.455625,
+   "ratio": 0.9448275862068966
+  },
+  {
+   "voice": "female",
+   "cid": "5071",
+   "words": 3,
+   "human_s": 1.328125,
+   "model_s": 1.1475,
+   "ratio": 0.864
+  },
+  {
+   "voice": "female",
+   "cid": "3927",
+   "words": 4,
+   "human_s": 1.02,
+   "model_s": 0.95625,
+   "ratio": 0.9375
+  },
+  {
+   "voice": "female",
+   "cid": "4371",
+   "words": 4,
+   "human_s": 1.6575,
+   "model_s": 1.33875,
+   "ratio": 0.8076923076923078
+  },
+  {
+   "voice": "female",
+   "cid": "3303",
+   "words": 5,
+   "human_s": 1.498125,
+   "model_s": 1.3175,
+   "ratio": 0.8794326241134751
+  },
+  {
+   "voice": "female",
+   "cid": "2354",
+   "words": 4,
+   "human_s": 2.61375,
+   "model_s": 2.029375,
+   "ratio": 0.7764227642276422
+  },
+  {
+   "voice": "female",
+   "cid": "3668",
+   "words": 6,
+   "human_s": 2.624375,
+   "model_s": 2.65625,
+   "ratio": 1.0121457489878543
+  },
+  {
+   "voice": "female",
+   "cid": "4885",
+   "words": 6,
+   "human_s": 1.880625,
+   "model_s": 1.8275,
+   "ratio": 0.9717514124293785
+  },
+  {
+   "voice": "female",
+   "cid": "3573",
+   "words": 4,
+   "human_s": 1.923125,
+   "model_s": 1.7,
+   "ratio": 0.8839779005524862
+  },
+  {
+   "voice": "female",
+   "cid": "2288",
+   "words": 6,
+   "human_s": 3.113125,
+   "model_s": 2.943125,
+   "ratio": 0.9453924914675769
+  },
+  {
+   "voice": "female",
+   "cid": "1891",
+   "words": 4,
+   "human_s": 1.625625,
+   "model_s": 1.3175,
+   "ratio": 0.8104575163398692
+  },
+  {
+   "voice": "female",
+   "cid": "1359",
+   "words": 4,
+   "human_s": 1.8275,
+   "model_s": 1.689375,
+   "ratio": 0.9244186046511629
+  },
+  {
+   "voice": "female",
+   "cid": "1857",
+   "words": 4,
+   "human_s": 1.073125,
+   "model_s": 0.966875,
+   "ratio": 0.9009900990099009
+  },
+  {
+   "voice": "female",
+   "cid": "686",
+   "words": 4,
+   "human_s": 1.93375,
+   "model_s": 1.7,
+   "ratio": 0.8791208791208791
+  },
+  {
+   "voice": "female",
+   "cid": "4780",
+   "words": 6,
+   "human_s": 2.5075,
+   "model_s": 2.305625,
+   "ratio": 0.9194915254237289
+  },
+  {
+   "voice": "female",
+   "cid": "2289",
+   "words": 6,
+   "human_s": 3.601875,
+   "model_s": 3.113125,
+   "ratio": 0.8643067846607669
+  },
+  {
+   "voice": "female",
+   "cid": "4321",
+   "words": 6,
+   "human_s": 2.008125,
+   "model_s": 2.050625,
+   "ratio": 1.0211640211640212
+  },
+  {
+   "voice": "female",
+   "cid": "3917",
+   "words": 6,
+   "human_s": 2.78375,
+   "model_s": 2.751875,
+   "ratio": 0.9885496183206107
+  },
+  {
+   "voice": "female",
+   "cid": "2584",
+   "words": 6,
+   "human_s": 1.955,
+   "model_s": 1.67875,
+   "ratio": 0.858695652173913
+  },
+  {
+   "voice": "female",
+   "cid": "3531",
+   "words": 4,
+   "human_s": 1.561875,
+   "model_s": 1.4875,
+   "ratio": 0.9523809523809524
+  },
+  {
+   "voice": "female",
+   "cid": "2202",
+   "words": 4,
+   "human_s": 1.9125,
+   "model_s": 1.646875,
+   "ratio": 0.8611111111111112
+  },
+  {
+   "voice": "female",
+   "cid": "5072",
+   "words": 5,
+   "human_s": 1.816875,
+   "model_s": 1.7,
+   "ratio": 0.935672514619883
+  },
+  {
+   "voice": "female",
+   "cid": "600",
+   "words": 6,
+   "human_s": 3.29375,
+   "model_s": 3.176875,
+   "ratio": 0.964516129032258
+  },
+  {
+   "voice": "female",
+   "cid": "849",
+   "words": 6,
+   "human_s": 2.369375,
+   "model_s": 2.10375,
+   "ratio": 0.8878923766816144
+  },
+  {
+   "voice": "female",
+   "cid": "4188",
+   "words": 5,
+   "human_s": 1.955,
+   "model_s": 2.071875,
+   "ratio": 1.059782608695652
+  },
+  {
+   "voice": "female",
+   "cid": "3163",
+   "words": 6,
+   "human_s": 1.944375,
+   "model_s": 1.84875,
+   "ratio": 0.9508196721311475
+  },
+  {
+   "voice": "female",
+   "cid": "951",
+   "words": 12,
+   "human_s": 5.089375,
+   "model_s": 4.834375,
+   "ratio": 0.9498956158663882
+  },
+  {
+   "voice": "female",
+   "cid": "4507",
+   "words": 11,
+   "human_s": 5.493125,
+   "model_s": 4.56875,
+   "ratio": 0.8317214700193423
+  },
+  {
+   "voice": "female",
+   "cid": "2024",
+   "words": 10,
+   "human_s": 3.559375,
+   "model_s": 3.346875,
+   "ratio": 0.9402985074626865
+  },
+  {
+   "voice": "female",
+   "cid": "855",
+   "words": 8,
+   "human_s": 2.89,
+   "model_s": 2.815625,
+   "ratio": 0.9742647058823528
+  },
+  {
+   "voice": "female",
+   "cid": "2962",
+   "words": 7,
+   "human_s": 2.74125,
+   "model_s": 2.539375,
+   "ratio": 0.9263565891472869
+  },
+  {
+   "voice": "female",
+   "cid": "2521",
+   "words": 12,
+   "human_s": 4.154375,
+   "model_s": 4.01625,
+   "ratio": 0.9667519181585679
+  },
+  {
+   "voice": "female",
+   "cid": "195",
+   "words": 7,
+   "human_s": 2.581875,
+   "model_s": 2.57125,
+   "ratio": 0.9958847736625513
+  },
+  {
+   "voice": "female",
+   "cid": "3959",
+   "words": 7,
+   "human_s": 3.12375,
+   "model_s": 2.7625,
+   "ratio": 0.8843537414965987
+  },
+  {
+   "voice": "female",
+   "cid": "4551",
+   "words": 10,
+   "human_s": 4.366875,
+   "model_s": 3.71875,
+   "ratio": 0.851581508515815
+  },
+  {
+   "voice": "female",
+   "cid": "3364",
+   "words": 8,
+   "human_s": 3.1875,
+   "model_s": 3.25125,
+   "ratio": 1.02
+  },
+  {
+   "voice": "female",
+   "cid": "3435",
+   "words": 11,
+   "human_s": 4.770625,
+   "model_s": 4.52625,
+   "ratio": 0.9487750556792873
+  },
+  {
+   "voice": "female",
+   "cid": "4731",
+   "words": 7,
+   "human_s": 3.08125,
+   "model_s": 2.7625,
+   "ratio": 0.8965517241379312
+  },
+  {
+   "voice": "female",
+   "cid": "4927",
+   "words": 11,
+   "human_s": 3.559375,
+   "model_s": 3.899375,
+   "ratio": 1.0955223880597014
+  },
+  {
+   "voice": "female",
+   "cid": "1871",
+   "words": 9,
+   "human_s": 4.281875,
+   "model_s": 3.984375,
+   "ratio": 0.9305210918114143
+  },
+  {
+   "voice": "female",
+   "cid": "3553",
+   "words": 9,
+   "human_s": 3.59125,
+   "model_s": 3.580625,
+   "ratio": 0.9970414201183432
+  },
+  {
+   "voice": "female",
+   "cid": "3017",
+   "words": 9,
+   "human_s": 3.580625,
+   "model_s": 3.644375,
+   "ratio": 1.0178041543026706
+  },
+  {
+   "voice": "female",
+   "cid": "3470",
+   "words": 8,
+   "human_s": 2.539375,
+   "model_s": 2.475625,
+   "ratio": 0.9748953974895397
+  },
+  {
+   "voice": "female",
+   "cid": "4793",
+   "words": 8,
+   "human_s": 2.454375,
+   "model_s": 2.23125,
+   "ratio": 0.9090909090909091
+  },
+  {
+   "voice": "female",
+   "cid": "2705",
+   "words": 7,
+   "human_s": 3.37875,
+   "model_s": 2.9325,
+   "ratio": 0.8679245283018868
+  },
+  {
+   "voice": "female",
+   "cid": "395",
+   "words": 7,
+   "human_s": 2.156875,
+   "model_s": 2.465,
+   "ratio": 1.1428571428571428
+  },
+  {
+   "voice": "female",
+   "cid": "5062",
+   "words": 12,
+   "human_s": 3.825,
+   "model_s": 3.835625,
+   "ratio": 1.0027777777777778
+  },
+  {
+   "voice": "female",
+   "cid": "1942",
+   "words": 14,
+   "human_s": 4.898125,
+   "model_s": 5.1,
+   "ratio": 1.0412147505422993
+  },
+  {
+   "voice": "female",
+   "cid": "3390",
+   "words": 17,
+   "human_s": 7.554375,
+   "model_s": 6.895625,
+   "ratio": 0.9127988748241912
+  },
+  {
+   "voice": "female",
+   "cid": "4434",
+   "words": 20,
+   "human_s": 6.853125,
+   "model_s": 5.684375,
+   "ratio": 0.8294573643410853
+  },
+  {
+   "voice": "female",
+   "cid": "4361",
+   "words": 28,
+   "human_s": 12.13375,
+   "model_s": 10.90125,
+   "ratio": 0.8984238178633975
+  },
+  {
+   "voice": "female",
+   "cid": "4033",
+   "words": 16,
+   "human_s": 5.61,
+   "model_s": 5.620625,
+   "ratio": 1.0018939393939394
+  },
+  {
+   "voice": "female",
+   "cid": "3284",
+   "words": 17,
+   "human_s": 6.26875,
+   "model_s": 6.035,
+   "ratio": 0.9627118644067797
+  },
+  {
+   "voice": "female",
+   "cid": "2619",
+   "words": 17,
+   "human_s": 8.3725,
+   "model_s": 7.84125,
+   "ratio": 0.9365482233502537
+  },
+  {
+   "voice": "female",
+   "cid": "160",
+   "words": 15,
+   "human_s": 5.37625,
+   "model_s": 5.54625,
+   "ratio": 1.0316205533596838
+  },
+  {
+   "voice": "female",
+   "cid": "3346",
+   "words": 21,
+   "human_s": 8.13875,
+   "model_s": 7.82,
+   "ratio": 0.9608355091383812
+  },
+  {
+   "voice": "female",
+   "cid": "2720",
+   "words": 18,
+   "human_s": 5.20625,
+   "model_s": 5.408125,
+   "ratio": 1.0387755102040817
+  },
+  {
+   "voice": "female",
+   "cid": "1241",
+   "words": 13,
+   "human_s": 5.44,
+   "model_s": 5.185,
+   "ratio": 0.9531249999999999
+  },
+  {
+   "voice": "female",
+   "cid": "4185",
+   "words": 14,
+   "human_s": 6.56625,
+   "model_s": 5.27,
+   "ratio": 0.802588996763754
+  },
+  {
+   "voice": "female2",
+   "cid": "2280",
+   "words": 2,
+   "human_s": 2.688125,
+   "model_s": 1.4025,
+   "ratio": 0.5217391304347827
+  },
+  {
+   "voice": "female2",
+   "cid": "1263",
+   "words": 2,
+   "human_s": 1.349375,
+   "model_s": 1.29625,
+   "ratio": 0.9606299212598425
+  },
+  {
+   "voice": "female2",
+   "cid": "1474",
+   "words": 2,
+   "human_s": 0.74375,
+   "model_s": 0.881875,
+   "ratio": 1.1857142857142857
+  },
+  {
+   "voice": "female2",
+   "cid": "1332",
+   "words": 2,
+   "human_s": 0.924375,
+   "model_s": 0.754375,
+   "ratio": 0.8160919540229886
+  },
+  {
+   "voice": "female2",
+   "cid": "1763",
+   "words": 2,
+   "human_s": 1.094375,
+   "model_s": 1.04125,
+   "ratio": 0.9514563106796116
+  },
+  {
+   "voice": "female2",
+   "cid": "1735",
+   "words": 2,
+   "human_s": 0.754375,
+   "model_s": 0.5525,
+   "ratio": 0.7323943661971831
+  },
+  {
+   "voice": "female2",
+   "cid": "2284",
+   "words": 2,
+   "human_s": 2.369375,
+   "model_s": 1.5725,
+   "ratio": 0.6636771300448431
+  },
+  {
+   "voice": "female2",
+   "cid": "580",
+   "words": 2,
+   "human_s": 1.2325,
+   "model_s": 1.221875,
+   "ratio": 0.9913793103448276
+  },
+  {
+   "voice": "female2",
+   "cid": "2075",
+   "words": 2,
+   "human_s": 1.29625,
+   "model_s": 1.12625,
+   "ratio": 0.8688524590163935
+  },
+  {
+   "voice": "female2",
+   "cid": "1789",
+   "words": 2,
+   "human_s": 1.3175,
+   "model_s": 1.264375,
+   "ratio": 0.9596774193548389
+  },
+  {
+   "voice": "female2",
+   "cid": "1448",
+   "words": 2,
+   "human_s": 0.91375,
+   "model_s": 0.796875,
+   "ratio": 0.872093023255814
+  },
+  {
+   "voice": "female2",
+   "cid": "2006",
+   "words": 2,
+   "human_s": 1.04125,
+   "model_s": 1.030625,
+   "ratio": 0.9897959183673468
+  },
+  {
+   "voice": "female2",
+   "cid": "3107",
+   "words": 2,
+   "human_s": 0.70125,
+   "model_s": 0.82875,
+   "ratio": 1.1818181818181817
+  },
+  {
+   "voice": "female2",
+   "cid": "3077",
+   "words": 2,
+   "human_s": 1.030625,
+   "model_s": 0.881875,
+   "ratio": 0.8556701030927836
+  },
+  {
+   "voice": "female2",
+   "cid": "1872",
+   "words": 2,
+   "human_s": 0.988125,
+   "model_s": 0.935,
+   "ratio": 0.946236559139785
+  },
+  {
+   "voice": "female2",
+   "cid": "1619",
+   "words": 2,
+   "human_s": 0.85,
+   "model_s": 0.68,
+   "ratio": 0.8
+  },
+  {
+   "voice": "female2",
+   "cid": "1709",
+   "words": 2,
+   "human_s": 0.82875,
+   "model_s": 0.8925,
+   "ratio": 1.0769230769230769
+  },
+  {
+   "voice": "female2",
+   "cid": "1304",
+   "words": 2,
+   "human_s": 1.391875,
+   "model_s": 1.0625,
+   "ratio": 0.7633587786259542
+  },
+  {
+   "voice": "female2",
+   "cid": "855",
+   "words": 3,
+   "human_s": 1.391875,
+   "model_s": 1.25375,
+   "ratio": 0.9007633587786259
+  },
+  {
+   "voice": "female2",
+   "cid": "1286",
+   "words": 3,
+   "human_s": 1.710625,
+   "model_s": 1.413125,
+   "ratio": 0.826086956521739
+  },
+  {
+   "voice": "female2",
+   "cid": "2879",
+   "words": 3,
+   "human_s": 1.455625,
+   "model_s": 1.604375,
+   "ratio": 1.102189781021898
+  },
+  {
+   "voice": "female2",
+   "cid": "3769",
+   "words": 3,
+   "human_s": 1.200625,
+   "model_s": 1.073125,
+   "ratio": 0.8938053097345133
+  },
+  {
+   "voice": "female2",
+   "cid": "98",
+   "words": 3,
+   "human_s": 1.391875,
+   "model_s": 1.413125,
+   "ratio": 1.015267175572519
+  },
+  {
+   "voice": "female2",
+   "cid": "2406",
+   "words": 3,
+   "human_s": 1.094375,
+   "model_s": 1.02,
+   "ratio": 0.9320388349514562
+  },
+  {
+   "voice": "female2",
+   "cid": "2731",
+   "words": 3,
+   "human_s": 1.455625,
+   "model_s": 1.561875,
+   "ratio": 1.072992700729927
+  },
+  {
+   "voice": "female2",
+   "cid": "1394",
+   "words": 3,
+   "human_s": 1.583125,
+   "model_s": 1.243125,
+   "ratio": 0.7852348993288591
+  },
+  {
+   "voice": "female2",
+   "cid": "47",
+   "words": 3,
+   "human_s": 1.455625,
+   "model_s": 1.391875,
+   "ratio": 0.9562043795620438
+  },
+  {
+   "voice": "female2",
+   "cid": "817",
+   "words": 3,
+   "human_s": 1.455625,
+   "model_s": 1.53,
+   "ratio": 1.051094890510949
+  },
+  {
+   "voice": "female2",
+   "cid": "2242",
+   "words": 3,
+   "human_s": 1.67875,
+   "model_s": 1.6575,
+   "ratio": 0.9873417721518988
+  },
+  {
+   "voice": "female2",
+   "cid": "2552",
+   "words": 3,
+   "human_s": 1.7425,
+   "model_s": 1.901875,
+   "ratio": 1.0914634146341464
+  },
+  {
+   "voice": "female2",
+   "cid": "2039",
+   "words": 3,
+   "human_s": 1.04125,
+   "model_s": 0.988125,
+   "ratio": 0.9489795918367347
+  },
+  {
+   "voice": "female2",
+   "cid": "2832",
+   "words": 3,
+   "human_s": 1.21125,
+   "model_s": 1.370625,
+   "ratio": 1.131578947368421
+  },
+  {
+   "voice": "female2",
+   "cid": "2642",
+   "words": 3,
+   "human_s": 1.25375,
+   "model_s": 1.29625,
+   "ratio": 1.0338983050847457
+  },
+  {
+   "voice": "female2",
+   "cid": "1537",
+   "words": 3,
+   "human_s": 2.220625,
+   "model_s": 1.4025,
+   "ratio": 0.631578947368421
+  },
+  {
+   "voice": "female2",
+   "cid": "697",
+   "words": 3,
+   "human_s": 1.434375,
+   "model_s": 1.55125,
+   "ratio": 1.0814814814814815
+  },
+  {
+   "voice": "female2",
+   "cid": "3115",
+   "words": 3,
+   "human_s": 1.19,
+   "model_s": 1.243125,
+   "ratio": 1.0446428571428572
+  },
+  {
+   "voice": "female2",
+   "cid": "2472",
+   "words": 3,
+   "human_s": 1.498125,
+   "model_s": 1.710625,
+   "ratio": 1.1418439716312059
+  },
+  {
+   "voice": "female2",
+   "cid": "2838",
+   "words": 3,
+   "human_s": 1.413125,
+   "model_s": 1.498125,
+   "ratio": 1.0601503759398496
+  },
+  {
+   "voice": "female2",
+   "cid": "2877",
+   "words": 3,
+   "human_s": 1.42375,
+   "model_s": 1.33875,
+   "ratio": 0.9402985074626866
+  },
+  {
+   "voice": "female2",
+   "cid": "3042",
+   "words": 3,
+   "human_s": 1.221875,
+   "model_s": 0.966875,
+   "ratio": 0.7913043478260869
+  },
+  {
+   "voice": "female2",
+   "cid": "2842",
+   "words": 5,
+   "human_s": 2.390625,
+   "model_s": 2.0825,
+   "ratio": 0.8711111111111112
+  },
+  {
+   "voice": "female2",
+   "cid": "1755",
+   "words": 5,
+   "human_s": 2.4225,
+   "model_s": 1.901875,
+   "ratio": 0.7850877192982456
+  },
+  {
+   "voice": "female2",
+   "cid": "3540",
+   "words": 6,
+   "human_s": 2.496875,
+   "model_s": 2.55,
+   "ratio": 1.0212765957446808
+  },
+  {
+   "voice": "female2",
+   "cid": "3419",
+   "words": 5,
+   "human_s": 1.604375,
+   "model_s": 1.498125,
+   "ratio": 0.933774834437086
+  },
+  {
+   "voice": "female2",
+   "cid": "2920",
+   "words": 4,
+   "human_s": 1.731875,
+   "model_s": 1.838125,
+   "ratio": 1.0613496932515336
+  },
+  {
+   "voice": "female2",
+   "cid": "3729",
+   "words": 5,
+   "human_s": 2.06125,
+   "model_s": 2.326875,
+   "ratio": 1.1288659793814433
+  },
+  {
+   "voice": "female2",
+   "cid": "2566",
+   "words": 6,
+   "human_s": 1.4025,
+   "model_s": 1.5725,
+   "ratio": 1.121212121212121
+  },
+  {
+   "voice": "female2",
+   "cid": "2998",
+   "words": 6,
+   "human_s": 1.9975,
+   "model_s": 1.93375,
+   "ratio": 0.9680851063829787
+  },
+  {
+   "voice": "female2",
+   "cid": "2147",
+   "words": 4,
+   "human_s": 1.880625,
+   "model_s": 1.646875,
+   "ratio": 0.8757062146892656
+  },
+  {
+   "voice": "female2",
+   "cid": "1506",
+   "words": 4,
+   "human_s": 2.199375,
+   "model_s": 1.4025,
+   "ratio": 0.6376811594202899
+  },
+  {
+   "voice": "female2",
+   "cid": "1511",
+   "words": 4,
+   "human_s": 3.16625,
+   "model_s": 1.87,
+   "ratio": 0.5906040268456376
+  },
+  {
+   "voice": "female2",
+   "cid": "1498",
+   "words": 4,
+   "human_s": 1.434375,
+   "model_s": 1.264375,
+   "ratio": 0.8814814814814815
+  },
+  {
+   "voice": "female2",
+   "cid": "476",
+   "words": 5,
+   "human_s": 1.97625,
+   "model_s": 1.9975,
+   "ratio": 1.010752688172043
+  },
+  {
+   "voice": "female2",
+   "cid": "2373",
+   "words": 5,
+   "human_s": 1.604375,
+   "model_s": 1.646875,
+   "ratio": 1.0264900662251655
+  },
+  {
+   "voice": "female2",
+   "cid": "1521",
+   "words": 4,
+   "human_s": 1.29625,
+   "model_s": 1.25375,
+   "ratio": 0.9672131147540983
+  },
+  {
+   "voice": "female2",
+   "cid": "775",
+   "words": 5,
+   "human_s": 2.99625,
+   "model_s": 3.23,
+   "ratio": 1.0780141843971631
+  },
+  {
+   "voice": "female2",
+   "cid": "341",
+   "words": 5,
+   "human_s": 2.23125,
+   "model_s": 2.4225,
+   "ratio": 1.0857142857142856
+  },
+  {
+   "voice": "female2",
+   "cid": "805",
+   "words": 4,
+   "human_s": 1.275,
+   "model_s": 1.445,
+   "ratio": 1.1333333333333335
+  },
+  {
+   "voice": "female2",
+   "cid": "1673",
+   "words": 6,
+   "human_s": 2.04,
+   "model_s": 2.23125,
+   "ratio": 1.09375
+  },
+  {
+   "voice": "female2",
+   "cid": "684",
+   "words": 4,
+   "human_s": 2.21,
+   "model_s": 1.774375,
+   "ratio": 0.8028846153846154
+  },
+  {
+   "voice": "female2",
+   "cid": "622",
+   "words": 7,
+   "human_s": 3.29375,
+   "model_s": 2.78375,
+   "ratio": 0.8451612903225806
+  },
+  {
+   "voice": "female2",
+   "cid": "572",
+   "words": 8,
+   "human_s": 3.538125,
+   "model_s": 2.95375,
+   "ratio": 0.8348348348348348
+  },
+  {
+   "voice": "female2",
+   "cid": "3405",
+   "words": 11,
+   "human_s": 3.941875,
+   "model_s": 3.686875,
+   "ratio": 0.9353099730458221
+  },
+  {
+   "voice": "female2",
+   "cid": "850",
+   "words": 10,
+   "human_s": 3.176875,
+   "model_s": 3.12375,
+   "ratio": 0.9832775919732442
+  },
+  {
+   "voice": "female2",
+   "cid": "3214",
+   "words": 11,
+   "human_s": 3.538125,
+   "model_s": 3.80375,
+   "ratio": 1.075075075075075
+  },
+  {
+   "voice": "female2",
+   "cid": "570",
+   "words": 7,
+   "human_s": 2.114375,
+   "model_s": 2.18875,
+   "ratio": 1.035175879396985
+  },
+  {
+   "voice": "female2",
+   "cid": "2113",
+   "words": 8,
+   "human_s": 2.900625,
+   "model_s": 2.78375,
+   "ratio": 0.9597069597069597
+  },
+  {
+   "voice": "female2",
+   "cid": "120",
+   "words": 9,
+   "human_s": 3.984375,
+   "model_s": 3.6975,
+   "ratio": 0.9279999999999999
+  },
+  {
+   "voice": "female2",
+   "cid": "403",
+   "words": 11,
+   "human_s": 4.05875,
+   "model_s": 3.74,
+   "ratio": 0.9214659685863875
+  },
+  {
+   "voice": "female2",
+   "cid": "1180",
+   "words": 11,
+   "human_s": 3.3575,
+   "model_s": 3.2725,
+   "ratio": 0.9746835443037974
+  },
+  {
+   "voice": "female2",
+   "cid": "3619",
+   "words": 10,
+   "human_s": 2.836875,
+   "model_s": 3.03875,
+   "ratio": 1.0711610486891385
+  },
+  {
+   "voice": "female2",
+   "cid": "2210",
+   "words": 9,
+   "human_s": 2.975,
+   "model_s": 2.921875,
+   "ratio": 0.9821428571428571
+  },
+  {
+   "voice": "female2",
+   "cid": "832",
+   "words": 8,
+   "human_s": 3.219375,
+   "model_s": 3.410625,
+   "ratio": 1.0594059405940595
+  },
+  {
+   "voice": "female2",
+   "cid": "3748",
+   "words": 7,
+   "human_s": 2.093125,
+   "model_s": 2.18875,
+   "ratio": 1.0456852791878173
+  },
+  {
+   "voice": "female2",
+   "cid": "1514",
+   "words": 8,
+   "human_s": 3.516875,
+   "model_s": 2.23125,
+   "ratio": 0.6344410876132931
+  },
+  {
+   "voice": "female2",
+   "cid": "2037",
+   "words": 8,
+   "human_s": 2.539375,
+   "model_s": 2.433125,
+   "ratio": 0.9581589958158995
+  },
+  {
+   "voice": "female2",
+   "cid": "3571",
+   "words": 9,
+   "human_s": 3.559375,
+   "model_s": 4.133125,
+   "ratio": 1.1611940298507462
+  },
+  {
+   "voice": "female2",
+   "cid": "2115",
+   "words": 9,
+   "human_s": 4.388125,
+   "model_s": 3.771875,
+   "ratio": 0.8595641646489105
+  },
+  {
+   "voice": "female2",
+   "cid": "2809",
+   "words": 9,
+   "human_s": 4.22875,
+   "model_s": 4.133125,
+   "ratio": 0.9773869346733668
+  },
+  {
+   "voice": "female2",
+   "cid": "678",
+   "words": 8,
+   "human_s": 3.9525,
+   "model_s": 3.1025,
+   "ratio": 0.7849462365591398
+  },
+  {
+   "voice": "female2",
+   "cid": "3473",
+   "words": 25,
+   "human_s": 0.159375,
+   "model_s": 10.975625,
+   "ratio": 68.86666666666667
+  },
+  {
+   "voice": "female2",
+   "cid": "3351",
+   "words": 14,
+   "human_s": 4.579375,
+   "model_s": 4.44125,
+   "ratio": 0.9698375870069607
+  },
+  {
+   "voice": "female2",
+   "cid": "3423",
+   "words": 16,
+   "human_s": 6.640625,
+   "model_s": 6.725625,
+   "ratio": 1.0128
+  },
+  {
+   "voice": "female2",
+   "cid": "3448",
+   "words": 16,
+   "human_s": 6.39625,
+   "model_s": 6.236875,
+   "ratio": 0.9750830564784053
+  },
+  {
+   "voice": "female2",
+   "cid": "2386",
+   "words": 21,
+   "human_s": 7.055,
+   "model_s": 7.3525,
+   "ratio": 1.0421686746987953
+  },
+  {
+   "voice": "female2",
+   "cid": "1108",
+   "words": 13,
+   "human_s": 4.770625,
+   "model_s": 4.8025,
+   "ratio": 1.0066815144766148
+  },
+  {
+   "voice": "female2",
+   "cid": "803",
+   "words": 14,
+   "human_s": 6.26875,
+   "model_s": 6.18375,
+   "ratio": 0.9864406779661017
+  },
+  {
+   "voice": "female2",
+   "cid": "2575",
+   "words": 14,
+   "human_s": 5.5675,
+   "model_s": 4.090625,
+   "ratio": 0.734732824427481
+  },
+  {
+   "voice": "female2",
+   "cid": "3712",
+   "words": 15,
+   "human_s": 4.7175,
+   "model_s": 5.2275,
+   "ratio": 1.1081081081081081
+  },
+  {
+   "voice": "female2",
+   "cid": "167",
+   "words": 14,
+   "human_s": 4.876875,
+   "model_s": 4.69625,
+   "ratio": 0.9629629629629629
+  },
+  {
+   "voice": "female2",
+   "cid": "1471",
+   "words": 15,
+   "human_s": 5.769375,
+   "model_s": 5.939375,
+   "ratio": 1.0294659300184161
+  },
+  {
+   "voice": "female2",
+   "cid": "1139",
+   "words": 20,
+   "human_s": 8.765625,
+   "model_s": 7.62875,
+   "ratio": 0.8703030303030304
+  },
+  {
+   "voice": "female2",
+   "cid": "206",
+   "words": 17,
+   "human_s": 6.831875,
+   "model_s": 6.916875,
+   "ratio": 1.0124416796267497
+  },
+  {
+   "voice": "female2",
+   "cid": "2184",
+   "words": 16,
+   "human_s": 6.003125,
+   "model_s": 5.27,
+   "ratio": 0.8778761061946903
+  },
+  {
+   "voice": "female2",
+   "cid": "668",
+   "words": 16,
+   "human_s": 6.258125,
+   "model_s": 6.470625,
+   "ratio": 1.033955857385399
+  },
+  {
+   "voice": "female2",
+   "cid": "3722",
+   "words": 20,
+   "human_s": 7.086875,
+   "model_s": 7.894375,
+   "ratio": 1.1139430284857572
+  },
+  {
+   "voice": "female2",
+   "cid": "2778",
+   "words": 14,
+   "human_s": 4.855625,
+   "model_s": 4.8025,
+   "ratio": 0.9890590809628009
+  }
+ ]
+}

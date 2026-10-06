@@ -1,0 +1,18 @@
+# Allowlist: only the exploration work is tracked for now. Everything at the top level is
+# ignored by default, so the 7 GB of model weights, Flutter build output and datasets in
+# this directory can never be added by accident. Add paths deliberately below.
+/*
+!/.gitignore
+!/README.md
+!/exploration/
+
+# Inside exploration/: track code, docs and results — never weights or audio.
+# These are the self-contained bundle's assets; the ONNX alone is 135 MB, over GitHub's
+# 100 MB hard limit. See exploration/README.md for how to rebuild them locally.
+/exploration/notebooks/assets/
+/exploration/notebooks/__marimo__/
+
+# The sample manifest IS tracked: it names exactly which 250 clips every result used,
+# which is the provenance the measurements rest on. The audio itself is not.
+/exploration/notebooks/data/*
+!/exploration/notebooks/data/sample.tsv
