@@ -78,7 +78,7 @@ def _():
 
 # ── Cell 3: configuration ────────────────────────────────────────────────────
 @app.cell
-def _(Path, mo, os):
+def _(Path, mo, os, urllib):
     # Two supported layouts, tried in this order:
     #
     #   BUNDLE  <folder>/assets/kinya_flex_tts.onnx     — self-contained, upload the folder
@@ -133,15 +133,12 @@ def _(Path, mo, os):
                 return "bundle", seed
             if all(_exists(seed / m) for m in REPO_MARKS):
                 return "repo", seed
-        raise RuntimeError(
-            "Could not find the benchmark files. Either run from the bundle folder "
-            f"(the one containing {BUNDLE_MARK}), or from the project directory, or set "
-            "KINYA_BENCH=/path/to/that/folder in the environment."
-        )
+        # Nothing local: fall back to fetching from GitHub into a cache beside the cwd.
+        return "github", Path(os.environ.get("KINYA_CACHE", Path.cwd() / "kinya_bench_cache"))
 
     LAYOUT, ROOT = _locate()
 
-    if LAYOUT == "bundle":
+    if LAYOUT in ("bundle", "github"):
         DATA    = ROOT / "data"
         RESULTS = ROOT / "results"
         MODEL   = ROOT / "assets/kinya_flex_tts.onnx"
@@ -164,15 +161,57 @@ def _(Path, mo, os):
     SR = 24000    # model output rate; the corpus is also 24 kHz
     HOP = 256     # samples per model frame
 
-    # Fail here, with the paths visible, rather than deep inside a clone or a download.
-    _missing = [str(q) for q in (MODEL, GOLDEN) if not q.exists()]
-    if _missing:
-        raise RuntimeError("Missing required files:\n  " + "\n  ".join(_missing))
+    # GitHub is the store for everything small: the tokenizer, the golden vectors and the
+    # sample manifest. The corpus audio comes from Hugging Face (cell 5). The model does
+    # NOT live on GitHub — at 136 MB it exceeds the 100 MB per-file limit — so it is found
+    # locally or pointed at with KINYA_MODEL.
+    GH_RAW = os.environ.get(
+        "KINYA_GH_RAW",
+        "https://raw.githubusercontent.com/maqamylee0/kinyarwanda_tts_short-words/main",
+    )
+    _FROM_GITHUB = {
+        GOLDEN:                         "exploration/notebooks/assets/kinya_flex_tokenizer_golden.json",
+        DEEPKIN / "deepkin/__init__.py":            "exploration/notebooks/assets/deepkin/__init__.py",
+        DEEPKIN / "deepkin/data/__init__.py":       "exploration/notebooks/assets/deepkin/data/__init__.py",
+        DEEPKIN / "deepkin/data/kinya_norm.py":     "exploration/notebooks/assets/deepkin/data/kinya_norm.py",
+        DEEPKIN / "deepkin/data/kinyarwanda.py":    "exploration/notebooks/assets/deepkin/data/kinyarwanda.py",
+        DEEPKIN / "deepkin/data/kinya_number_speller.py": "exploration/notebooks/assets/deepkin/data/kinya_number_speller.py",
+        DATA / "sample.tsv":            "exploration/notebooks/data/sample.tsv",
+    }
+
+    def ensure_from_github(dest, relpath):
+        if dest.exists():
+            return dest
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        url = f"{GH_RAW}/{relpath}"
+        with urllib.request.urlopen(url, timeout=60) as r:
+            dest.write_bytes(r.read())
+        print(f"  fetched {relpath}")
+        return dest
+
+    if LAYOUT == "github":
+        print("no local copy found — fetching from GitHub")
+        for _dest, _rel in _FROM_GITHUB.items():
+            ensure_from_github(_dest, _rel)
+
+    # The model, which GitHub cannot host.
+    if not MODEL.exists() and os.environ.get("KINYA_MODEL"):
+        MODEL = Path(os.environ["KINYA_MODEL"]).expanduser().resolve()
+    if not MODEL.exists():
+        raise RuntimeError(
+            f"Model not found at {MODEL}.\n"
+            "It is 136 MB, over GitHub's 100 MB per-file limit, so it is not in the repo.\n"
+            "Point at a local copy with:  KINYA_MODEL=/path/to/kinya_flex_tts.onnx\n"
+            "Build it with export_kinya_flex_tts_colab.ipynb if you do not have one."
+        )
+    if not GOLDEN.exists():
+        raise RuntimeError(f"Missing golden vectors: {GOLDEN}")
 
     RESULTS.mkdir(parents=True, exist_ok=True)
     DATA.mkdir(parents=True, exist_ok=True)
     (DATA / "wav").mkdir(exist_ok=True)
-    return DATA, DEEPKIN, GOLDEN, HF, LAYOUT, MODEL, PER_CELL, RESULTS, ROOT, SEED, SR, VOICES
+    return (DATA, DEEPKIN, GOLDEN, GH_RAW, HF, LAYOUT, MODEL, PER_CELL, RESULTS, ROOT,
+            SEED, SR, VOICES, ensure_from_github)
 
 
 # ── Cell 4: dataset section header ───────────────────────────────────────────
@@ -279,8 +318,8 @@ def _(DEEPKIN, GOLDEN, LAYOUT, json, subprocess, sys):
     # too deep and the tokenizer is then never found.
     REPO = DEEPKIN.parent
     if not (DEEPKIN / "deepkin").is_dir():
-        if LAYOUT == "bundle":
-            raise RuntimeError(f"bundled tokenizer missing: {DEEPKIN / 'deepkin'}")
+        if LAYOUT in ("bundle", "github"):
+            raise RuntimeError(f"tokenizer missing: {DEEPKIN / 'deepkin'}")
         if REPO.exists() and any(REPO.iterdir()):
             raise RuntimeError(
                 f"{REPO} exists but has no DeepKIN-AgAI/deepkin inside — most likely a "
