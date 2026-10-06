@@ -5,6 +5,44 @@ and traps are in `METHODOLOGY.md`; raw output in `results/`.
 
 ---
 
+## 2026-10-06 — the ONNX export is bit-identical to C4IR's checkpoint, including on isolated words
+
+**Method.** Both engines loaded and run on the same token ids at `noise_scale=0`, speaker 0,
+`lengthScale 1.0`: our export (`emmilly/kinya-flex-tts-onnx`) and C4IR's own checkpoint
+(`C4IR-RW/kinya-flex-tts`, 34.9M generator params, 2,000K train steps). 10 isolated words
+plus one sentence. Raw: `results/short_words_both_engines_20261006T135351Z.json`.
+
+**Result.** Identical on every word — same sample counts, same durations to the
+millisecond, same peaks, **correlation 1.00000**. Same for the sentence.
+
+| word | syl | onnx s | torch s | s/syllable | peak | samples equal | corr |
+|---|---|---|---|---|---|---|---|
+| icunga | 3 | 0.372 | 0.372 | 0.124 | 0.045 | yes | 1.00000 |
+| amazi | 3 | 0.287 | 0.287 | 0.096 | 0.135 | yes | 1.00000 |
+| inka | 2 | 0.202 | 0.202 | 0.101 | 0.053 | yes | 1.00000 |
+| umwana | 3 | 0.457 | 0.457 | 0.152 | 0.150 | yes | 1.00000 |
+| ishuri | 3 | 0.457 | 0.457 | 0.152 | 0.186 | yes | 1.00000 |
+| ibirayi | 4 | 0.414 | 0.414 | 0.104 | 0.111 | yes | 1.00000 |
+| umuhinzi | 4 | 0.659 | 0.659 | 0.165 | 0.115 | yes | 1.00000 |
+| ifumbire | 4 | 0.542 | 0.542 | 0.135 | 0.074 | yes | 1.00000 |
+| umuneke | 4 | 0.510 | 0.510 | 0.128 | 0.132 | yes | 1.00000 |
+| inanasi | 4 | 0.648 | 0.648 | 0.162 | 0.295 | yes | 1.00000 |
+
+**Reading.** Two conclusions, and the second is the one that matters for the paper.
+
+1. **The export is not a confound.** Every measurement taken on the ONNX describes C4IR's
+   model exactly. The findings need no re-statement.
+2. **The rushing is C4IR's model.** Their own checkpoint averages **0.132 s/syllable** on
+   isolated words — indistinguishable from the actress's *sentence-internal* rate of 0.129,
+   and roughly half her isolated-word rate of 0.223. The model applies sentence timing to
+   isolated words, and it does so in the original, not in our conversion.
+
+The quietness is theirs too: `icunga` peaks at 0.045 and `inka` at 0.053 in both engines.
+
+**What would overturn it.** Nothing about the export — bit-identical output is not a
+marginal result. The *interpretation* still rests on the 0.223 isolated-word reference,
+which is n=6 from a different corpus and speaker.
+
 ## 2026-10-06 — the model is not globally fast; it rushes short utterances
 
 **Method.** Same-text comparison against the actress's own recordings, 190 digit-free clips

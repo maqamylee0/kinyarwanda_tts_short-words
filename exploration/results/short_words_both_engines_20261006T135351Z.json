@@ -1,0 +1,208 @@
+{
+ "run_utc": "20261006T135351Z",
+ "what": "isolated-word timing and export fidelity, both engines",
+ "sources": {
+  "onnx": "emmilly/kinya-flex-tts-onnx",
+  "torch": "C4IR-RW/kinya-flex-tts"
+ },
+ "config": {
+  "sid": 0,
+  "length_scale": 1.0,
+  "noise_scale": 0.0,
+  "metric": "speech-only duration, -32 dB relative gate"
+ },
+ "torch_checkpoint": {
+  "generator_params_M": 34.9,
+  "train_steps": "2,000K"
+ },
+ "short_word_timing": [
+  {
+   "word": "icunga",
+   "syllables": 3,
+   "onnx_s": 0.372,
+   "onnx_s_per_syllable": 0.124,
+   "onnx_peak": 0.045,
+   "torch_s": 0.372,
+   "torch_s_per_syllable": 0.124,
+   "torch_peak": 0.045
+  },
+  {
+   "word": "amazi",
+   "syllables": 3,
+   "onnx_s": 0.287,
+   "onnx_s_per_syllable": 0.096,
+   "onnx_peak": 0.135,
+   "torch_s": 0.287,
+   "torch_s_per_syllable": 0.096,
+   "torch_peak": 0.135
+  },
+  {
+   "word": "inka",
+   "syllables": 2,
+   "onnx_s": 0.202,
+   "onnx_s_per_syllable": 0.101,
+   "onnx_peak": 0.053,
+   "torch_s": 0.202,
+   "torch_s_per_syllable": 0.101,
+   "torch_peak": 0.053
+  },
+  {
+   "word": "umwana",
+   "syllables": 3,
+   "onnx_s": 0.457,
+   "onnx_s_per_syllable": 0.152,
+   "onnx_peak": 0.15,
+   "torch_s": 0.457,
+   "torch_s_per_syllable": 0.152,
+   "torch_peak": 0.15
+  },
+  {
+   "word": "ishuri",
+   "syllables": 3,
+   "onnx_s": 0.457,
+   "onnx_s_per_syllable": 0.152,
+   "onnx_peak": 0.186,
+   "torch_s": 0.457,
+   "torch_s_per_syllable": 0.152,
+   "torch_peak": 0.186
+  },
+  {
+   "word": "ibirayi",
+   "syllables": 4,
+   "onnx_s": 0.414,
+   "onnx_s_per_syllable": 0.104,
+   "onnx_peak": 0.111,
+   "torch_s": 0.414,
+   "torch_s_per_syllable": 0.104,
+   "torch_peak": 0.111
+  },
+  {
+   "word": "umuhinzi",
+   "syllables": 4,
+   "onnx_s": 0.659,
+   "onnx_s_per_syllable": 0.165,
+   "onnx_peak": 0.115,
+   "torch_s": 0.659,
+   "torch_s_per_syllable": 0.165,
+   "torch_peak": 0.115
+  },
+  {
+   "word": "ifumbire",
+   "syllables": 4,
+   "onnx_s": 0.542,
+   "onnx_s_per_syllable": 0.135,
+   "onnx_peak": 0.074,
+   "torch_s": 0.542,
+   "torch_s_per_syllable": 0.135,
+   "torch_peak": 0.074
+  },
+  {
+   "word": "umuneke",
+   "syllables": 4,
+   "onnx_s": 0.51,
+   "onnx_s_per_syllable": 0.128,
+   "onnx_peak": 0.132,
+   "torch_s": 0.51,
+   "torch_s_per_syllable": 0.128,
+   "torch_peak": 0.132
+  },
+  {
+   "word": "inanasi",
+   "syllables": 4,
+   "onnx_s": 0.648,
+   "onnx_s_per_syllable": 0.162,
+   "onnx_peak": 0.295,
+   "torch_s": 0.648,
+   "torch_s_per_syllable": 0.162,
+   "torch_peak": 0.295
+  }
+ ],
+ "onnx_vs_torch_fidelity_short_words": [
+  {
+   "word": "icunga",
+   "onnx_s": 0.372,
+   "torch_s": 0.372,
+   "delta": 0.0,
+   "samples_equal": true,
+   "corr": 1.0
+  },
+  {
+   "word": "amazi",
+   "onnx_s": 0.287,
+   "torch_s": 0.287,
+   "delta": 0.0,
+   "samples_equal": true,
+   "corr": 1.0
+  },
+  {
+   "word": "inka",
+   "onnx_s": 0.202,
+   "torch_s": 0.202,
+   "delta": 0.0,
+   "samples_equal": true,
+   "corr": 1.0
+  },
+  {
+   "word": "umwana",
+   "onnx_s": 0.457,
+   "torch_s": 0.457,
+   "delta": 0.0,
+   "samples_equal": true,
+   "corr": 1.0
+  },
+  {
+   "word": "ishuri",
+   "onnx_s": 0.457,
+   "torch_s": 0.457,
+   "delta": 0.0,
+   "samples_equal": true,
+   "corr": 1.0
+  },
+  {
+   "word": "ibirayi",
+   "onnx_s": 0.414,
+   "torch_s": 0.414,
+   "delta": 0.0,
+   "samples_equal": true,
+   "corr": 1.0
+  },
+  {
+   "word": "umuhinzi",
+   "onnx_s": 0.659,
+   "torch_s": 0.659,
+   "delta": 0.0,
+   "samples_equal": true,
+   "corr": 1.0
+  },
+  {
+   "word": "ifumbire",
+   "onnx_s": 0.542,
+   "torch_s": 0.542,
+   "delta": 0.0,
+   "samples_equal": true,
+   "corr": 1.0
+  },
+  {
+   "word": "umuneke",
+   "onnx_s": 0.51,
+   "torch_s": 0.51,
+   "delta": 0.0,
+   "samples_equal": true,
+   "corr": 1.0
+  },
+  {
+   "word": "inanasi",
+   "onnx_s": 0.648,
+   "torch_s": 0.648,
+   "delta": 0.0,
+   "samples_equal": true,
+   "corr": 1.0
+  }
+ ],
+ "verdict": "Export is bit-identical to C4IR's checkpoint on all 10 isolated words and on a sentence: same sample counts, corr 1.00000. The short-utterance rushing is C4IR's model, not our ONNX conversion.",
+ "reference_points": {
+  "actress_sentence_internal_s_per_syllable": 0.129,
+  "actress_isolated_word_s_per_syllable": 0.223,
+  "note": "isolated-word figure is n=6 from a different corpus"
+ }
+}

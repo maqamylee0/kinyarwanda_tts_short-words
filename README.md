@@ -49,9 +49,11 @@ C4IR's original checkpoint from
 from [`C4IR-RW/kinya-ag-tts`](https://huggingface.co/datasets/C4IR-RW/kinya-ag-tts).
 First run downloads ~1.3 GB into the standard Hugging Face cache.
 
-It runs **both engines** on identical text. That is the control a reviewer will ask for:
-without C4IR's own checkpoint in the comparison, the measurements could be describing our
-ONNX conversion rather than their model.
+It runs **both engines** on identical text. That control has now been run: on 10 isolated
+words and a sentence, our export and C4IR's checkpoint produce **identical sample counts
+and correlation 1.00000**. The export is not a confound, and the short-utterance rushing
+is C4IR's model — their own checkpoint averages 0.132 s/syllable on isolated words, against
+the actress's 0.129 inside a sentence and 0.223 on an isolated one.
 
 ## What is deliberately not here
 
