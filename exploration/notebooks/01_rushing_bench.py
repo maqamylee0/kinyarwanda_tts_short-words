@@ -8,7 +8,8 @@
 #     "huggingface_hub",
 #     "torch",
 #     "typed-argument-parser",
-#     "librosa",
+#     "scipy",
+#     "packaging",
 # ]
 # ///
 """Rushing bench for kinya-flex-tts — two engines against the corpus they were trained on.
@@ -363,13 +364,47 @@ def _(ONNX_FILE, ONNX_REPO, hub, np, text_to_ids):
 
 # ── Cell 13: torch engine ────────────────────────────────────────────────────
 @app.cell
-def _(TORCH_FILE, TORCH_REPO, TORCH_SEED, hub, text_to_ids):
+def _(TORCH_FILE, TORCH_REPO, TORCH_SEED, hub, sys, text_to_ids):
     # C4IR publishes only a training checkpoint (generator + discriminators + optimizers),
     # so this is 1.11 GB and loading takes a moment. from_pretrained strips it for us.
     synth_torch = None
     TORCH_ERROR = None
     try:
+        import types
+
         import torch
+
+        # deepkin's model module imports librosa and torchaudio at module level, but uses
+        # them only in the TRAINING forward pass (mel losses) and in a save-to-disk helper.
+        # infer() touches neither. Rather than pull librosa's numba/llvmlite stack for a
+        # function we never call, satisfy the imports with stubs that raise if used.
+        def _stub(name, **attrs):
+            mod = types.ModuleType(name)
+            for k, v in attrs.items():
+                setattr(mod, k, v)
+            sys.modules[name] = mod
+            return mod
+
+        def _never(what):
+            def f(*a, **k):
+                raise RuntimeError(
+                    f"{what} was called. The bench stubs it because inference does not "
+                    "need it; install the real package if you are running training code.")
+            return f
+
+        try:
+            import librosa  # noqa: F401
+        except ModuleNotFoundError:
+            _stub("librosa", filters=_stub("librosa.filters",
+                                           mel=_never("librosa.filters.mel")))
+        try:
+            import torchaudio  # noqa: F401
+        except ModuleNotFoundError:
+            _stub("torchaudio",
+                  transforms=_stub("torchaudio.transforms",
+                                   Vol=_never("torchaudio.transforms.Vol")),
+                  save=_never("torchaudio.save"))
+
         from deepkin.models.flex_tts import FlexKinyaTTS
 
         _ckpt = hub(TORCH_REPO, TORCH_FILE)
@@ -393,9 +428,11 @@ def _(TORCH_FILE, TORCH_REPO, TORCH_SEED, hub, text_to_ids):
     except Exception as exc:                                    # noqa: BLE001
         TORCH_ERROR = f"{type(exc).__name__}: {exc}"
         print(f"torch UNAVAILABLE — {TORCH_ERROR}")
-        print("  the bench continues with ONNX only; the export-fidelity check (section 6)")
-        print("  and the torch column will be skipped.")
-        print("  deps: torch, typed-argument-parser, librosa  (all in the script header)")
+        print("  Every result below is then ONNX-only: no torch column, and neither")
+        print("  fidelity check runs — so nothing here can tell you whether the rushing")
+        print("  is C4IR's model or our export.")
+        print("  Fix: run with `uv run`, which installs the script header's dependencies")
+        print("  (torch, typed-argument-parser, scipy, packaging) into an isolated env.")
     return TORCH_ERROR, synth_torch
 
 
@@ -407,6 +444,36 @@ def _(synth_onnx, synth_torch):
         ENGINES["torch"] = synth_torch
     print("engines:", ", ".join(ENGINES))
     return (ENGINES,)
+
+
+# ── Cell 14b: loud banner when an engine is missing ──────────────────────────
+@app.cell
+def _(ENGINES, TORCH_ERROR, mo):
+    if TORCH_ERROR:
+        mo.callout(
+            mo.md(
+                f"""
+                ### Only the ONNX engine loaded
+
+                C4IR's checkpoint did not load, so **every table and player below shows
+                `onnx` alone** and both fidelity checks are skipped. Nothing in this run can
+                tell you whether the short-word rushing belongs to C4IR's model or to our
+                export — that comparison needs both engines.
+
+                ```
+                {TORCH_ERROR}
+                ```
+
+                Run it with `uv run exploration/notebooks/01_rushing_bench.py`, which
+                installs the script header's dependencies into an isolated environment.
+                """
+            ),
+            kind="danger",
+        )
+    else:
+        mo.callout(mo.md(f"Both engines loaded: **{', '.join(ENGINES)}**. Every "
+                         "measurement below is reported for each."), kind="success")
+    return
 
 
 # ── Cell 15: listening section ───────────────────────────────────────────────

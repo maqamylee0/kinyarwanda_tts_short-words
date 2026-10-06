@@ -62,9 +62,17 @@ That is the control: if the export had altered the duration predictor, every mea
 here would describe our artefact rather than C4IR's model. Section 6 compares them
 directly at `noise_scale=0`, where a faithful export gives identical sample counts.
 
-The torch engine needs `torch`, `typed-argument-parser` and `librosa` (all in the script
-header, so `uv run` handles them). If it cannot load, the bench says so and continues with
-ONNX only rather than failing.
+**Use `uv run`.** The torch engine needs `torch`, `typed-argument-parser`, `scipy` and
+`packaging`; `uv run` installs them from the script header into an isolated environment.
+Running `marimo edit` against a venv that lacks any of them silently gives you an
+ONNX-only bench — every table loses its torch column and both fidelity checks are skipped,
+so nothing in that run can attribute the rushing to C4IR's model rather than our export.
+A red banner at the top of the engines section says so when it happens.
+
+`librosa` and `torchaudio` are **not** required. deepkin imports them at module level but
+uses them only in the training forward pass and a save-to-disk helper, neither of which
+`infer()` touches, so the notebook stubs them with objects that raise if ever called —
+avoiding librosa's numba/llvmlite stack for a function that is never reached.
 
 ### Environment overrides
 
