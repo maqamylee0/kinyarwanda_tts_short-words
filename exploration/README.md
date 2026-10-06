@@ -30,64 +30,54 @@ Shared with the rest of the repo, not duplicated here:
 ## Running the bench
 
 ```bash
-# reactive notebook — sliders re-synthesize as you move them
-marimo edit exploration/notebooks/01_rushing_bench.py
+marimo edit exploration/notebooks/01_rushing_bench.py   # reactive notebook
+marimo run  exploration/notebooks/01_rushing_bench.py   # read-only app
+uv run      exploration/notebooks/01_rushing_bench.py   # deps resolved from the header
 
-# read-only app
-marimo run exploration/notebooks/01_rushing_bench.py
-
-# headless, writes a timestamped JSON to results/
+# headless, writes a timestamped JSON to the results folder
 BENCH_SAVE=1 marimo export html --no-include-code \
   exploration/notebooks/01_rushing_bench.py -o /tmp/rb.html
 ```
 
-### Where it gets its inputs
+Nothing needs to be checked out or placed by hand. Everything is pulled at run time:
 
-The notebook needs no checkout to run. Resolution order is: a local bundle (a folder with
-`assets/kinya_flex_tts.onnx` beside it), then this project checkout, then **download**.
-
-| asset | stored on | notes |
+| what | from | size |
 |---|---|---|
-| tokenizer, golden vectors, `sample.tsv` | **GitHub**, this repo | 72 KB total, fetched over https |
-| corpus audio (250 clips) | **Hugging Face**, `C4IR-RW/kinya-ag-tts` | stratified sample, ~53 MB |
-| model ONNX | **Hugging Face**, `maqamylee0/kinya-flex-tts-onnx` | 136 MB, over GitHub's 100 MB per-file limit |
+| our ONNX export | `emmilly/kinya-flex-tts-onnx` | 136 MB |
+| C4IR's checkpoint | `C4IR-RW/kinya-flex-tts` | 1.11 GB |
+| the corpus (250-clip seeded sample) | `C4IR-RW/kinya-ag-tts` | ~53 MB |
+| tokenizer + model code | `github.com/c4ir-rw/ac-ai-models` | 24 MB clone |
+| golden vectors | this repo, raw | 20 KB |
 
-So a collaborator with nothing checked out can do:
+Downloads go through the standard Hugging Face cache (`~/.cache/huggingface`), so they
+are shared with other tools and fetched once. The sample manifest and results land in
+`./kinya_bench/`, overridable with `KINYA_WORK`.
 
-```bash
-curl -sLO https://raw.githubusercontent.com/maqamylee0/kinyarwanda_tts_short-words/main/exploration/notebooks/01_rushing_bench.py
-marimo edit 01_rushing_bench.py
-```
+**First run pulls ~1.3 GB.** Subsequent runs are cached.
 
-Everything lands in `./kinya_bench_cache/` and is reused afterwards.
+### Two engines
 
-**The model must be published once before that works.** It is not in git, by necessity:
+The bench runs our ONNX export *and* C4IR's own PyTorch checkpoint on identical text.
+That is the control: if the export had altered the duration predictor, every measurement
+here would describe our artefact rather than C4IR's model. Section 6 compares them
+directly at `noise_scale=0`, where a faithful export gives identical sample counts.
 
-```bash
-hf auth login                    # or export HF_TOKEN=hf_...
-uv run exploration/upload_model_to_hf.py
-```
-
-Until then, point at a local copy instead:
-
-```bash
-KINYA_MODEL=/path/to/kinya_flex_tts.onnx marimo edit exploration/notebooks/01_rushing_bench.py
-```
+The torch engine needs `torch`, `typed-argument-parser` and `librosa` (all in the script
+header, so `uv run` handles them). If it cannot load, the bench says so and continues with
+ONNX only rather than failing.
 
 ### Environment overrides
 
 | variable | effect |
 |---|---|
-| `KINYA_MODEL` | path to a local ONNX, skipping the download |
-| `KINYA_HF_MODEL_REPO` | Hub repo holding the model (default `maqamylee0/kinya-flex-tts-onnx`) |
-| `KINYA_MODEL_URL` | full URL to the ONNX, overriding the repo |
-| `KINYA_BENCH` / `KINYA_ROOT` | force the bundle or project directory |
-| `KINYA_CACHE` | where downloads land (default `./kinya_bench_cache`) |
-| `KINYA_GH_RAW` | raw-content base URL, for a fork |
-| `BENCH_SAVE=1` | record the run to `results/` without the button |
+| `KINYA_ONNX_REPO` / `KINYA_ONNX_FILE` | where the ONNX comes from |
+| `KINYA_TORCH_REPO` / `KINYA_TORCH_FILE` | where the checkpoint comes from |
+| `KINYA_DATASET_REPO` | corpus repo |
+| `KINYA_WORK` | working dir for `sample.tsv` and results |
+| `BENCH_SAVE=1` | record the run without pressing the button |
 
-If `kinya_ag_sample/sample.tsv` already exists it is **reused verbatim rather than
-redrawn**, so the sample stays fixed across runs.
+If `sample.tsv` already exists it is **reused verbatim rather than redrawn**, so the
+sample stays fixed across runs.
 
 ## Status
 

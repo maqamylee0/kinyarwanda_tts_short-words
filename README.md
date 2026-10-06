@@ -39,20 +39,27 @@ as utterances shorten. Meanwhile the training corpus contains **2 single-word ro
 
 ```bash
 curl -sLO https://raw.githubusercontent.com/maqamylee0/kinyarwanda_tts_short-words/main/exploration/notebooks/01_rushing_bench.py
-marimo edit 01_rushing_bench.py
+uv run 01_rushing_bench.py
 ```
 
-The notebook fetches the tokenizer, golden vectors and sample manifest from this repo, the
-corpus audio from Hugging Face, and the model from
-[`maqamylee0/kinya-flex-tts-onnx`](https://huggingface.co/maqamylee0/kinya-flex-tts-onnx).
+The notebook pulls everything it needs at run time: our ONNX export from
+[`emmilly/kinya-flex-tts-onnx`](https://huggingface.co/emmilly/kinya-flex-tts-onnx),
+C4IR's original checkpoint from
+[`C4IR-RW/kinya-flex-tts`](https://huggingface.co/C4IR-RW/kinya-flex-tts), and the corpus
+from [`C4IR-RW/kinya-ag-tts`](https://huggingface.co/datasets/C4IR-RW/kinya-ag-tts).
+First run downloads ~1.3 GB into the standard Hugging Face cache.
+
+It runs **both engines** on identical text. That is the control a reviewer will ask for:
+without C4IR's own checkpoint in the comparison, the measurements could be describing our
+ONNX conversion rather than their model.
 
 ## What is deliberately not here
 
-The model weights and the corpus audio. The ONNX is 136 MB, over GitHub's 100 MB per-file
-limit, so it is published to the Hugging Face Hub instead — see
-`exploration/upload_model_to_hf.py`, which you run once with your own token
-(`hf auth login` first). `sample.tsv`
-*is* tracked, because it names exactly which 250 clips every result used.
+Model weights and corpus audio — they live on the Hub, which is both where they belong and
+the only option, since the ONNX alone is over GitHub's 100 MB per-file limit.
+`exploration/upload_model_to_hf.py` publishes the ONNX; you run it once with your own
+token (`hf auth login` first). `sample.tsv` *is* tracked, because it names exactly which
+250 clips every result used.
 
 ## Attribution
 

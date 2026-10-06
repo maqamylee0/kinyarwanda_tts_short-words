@@ -25,7 +25,7 @@ import os
 import sys
 from pathlib import Path
 
-REPO_ID = os.environ.get("KINYA_HF_MODEL_REPO", "maqamylee0/kinya-flex-tts-onnx")
+REPO_ID = os.environ.get("KINYA_HF_MODEL_REPO", "emmilina/kinya-flex-tts-onnx")
 FILENAME = "kinya_flex_tts.onnx"
 
 CANDIDATES = [

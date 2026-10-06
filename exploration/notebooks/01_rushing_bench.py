@@ -3,22 +3,32 @@
 # dependencies = [
 #     "marimo",
 #     "numpy",
-#     "onnxruntime",
 #     "matplotlib",
+#     "onnxruntime",
+#     "huggingface_hub",
+#     "torch",
+#     "typed-argument-parser",
+#     "librosa",
 # ]
 # ///
-"""Rushing bench for C4IR-RW/kinya-flex-tts.
+"""Rushing bench for kinya-flex-tts — two engines against the corpus they were trained on.
 
-Compares the model against the audio it was trained on, sentence by sentence.
-Because each comparison uses the *same text* as a real recording by the actress,
-the measurement needs no syllable counting: if the model's clip is shorter than
-hers, it is rushing, by exactly that ratio.
+Everything is pulled from the Hugging Face Hub at run time; nothing needs to be checked
+out or placed by hand:
 
-Downloads its own stratified sample of C4IR-RW/kinya-ag-tts (~250 clips, not the
-full 18k) on first run.
+    emmilly/kinya-flex-tts-onnx    our ONNX export  (136 MB)  -> onnxruntime
+    C4IR-RW/kinya-flex-tts         C4IR's checkpoint (1.11 GB) -> torch
+    C4IR-RW/kinya-ag-tts           the training corpus         -> a seeded 250-clip sample
+
+Running both engines answers the question a reviewer will ask: is the short-utterance
+rushing a property of C4IR's model, or did our ONNX conversion introduce it? Section 6
+compares the two directly on identical text with noise_scale=0, where any difference is
+the export's doing.
 
     uv run exploration/notebooks/01_rushing_bench.py      # app mode
     marimo edit exploration/notebooks/01_rushing_bench.py # notebook mode
+
+First run downloads ~1.3 GB and caches it under ~/.cache/huggingface.
 """
 
 import marimo
@@ -36,16 +46,20 @@ def _():
         """
         # Is the model rushing, or is the training data rushed?
 
-        An A/B bench for `C4IR-RW/kinya-flex-tts` against the corpus it was trained on,
-        [`C4IR-RW/kinya-ag-tts`](https://huggingface.co/datasets/C4IR-RW/kinya-ag-tts)
-        (CC-BY-4.0, C4IR Rwanda & KiNLP).
+        Two engines, one corpus, identical text.
 
-        For each sentence you get **the actress's real recording and the model's rendition
-        of the same text**. Identical text means the comparison needs no syllable counting
-        and no speaking-rate proxy — if the model's clip is shorter, it is rushing, by
-        exactly that ratio.
+        | | |
+        |---|---|
+        | **human** | the actress's real recording, from `C4IR-RW/kinya-ag-tts` |
+        | **onnx** | our export, `emmilly/kinya-flex-tts-onnx` — what the app ships |
+        | **torch** | C4IR's own checkpoint, `C4IR-RW/kinya-flex-tts` — the source of truth |
 
-        Everything runs locally. Results are written to `exploration/results/`.
+        Because every comparison uses the same text as a real recording, the measurement
+        needs no syllable counting and no speaking-rate proxy: if a model's clip is shorter
+        than hers, it is rushing, by exactly that ratio.
+
+        Running C4IR's checkpoint alongside ours separates two things that would otherwise
+        be confounded — the model's behaviour, and our conversion of it.
         """
     )
     return (mo,)
@@ -60,7 +74,6 @@ def _():
     import re
     import subprocess
     import sys
-    import urllib.request
     import warnings
     import wave
     from concurrent.futures import ThreadPoolExecutor
@@ -70,231 +83,165 @@ def _():
     import numpy as np
 
     warnings.filterwarnings("ignore", category=SyntaxWarning)
+    warnings.filterwarnings("ignore", category=FutureWarning)
     return (
         Path, ThreadPoolExecutor, datetime, json, np, os, random, re,
-        subprocess, sys, timezone, urllib, wave,
+        subprocess, sys, timezone, wave,
     )
 
 
 # ── Cell 3: configuration ────────────────────────────────────────────────────
 @app.cell
-def _(Path, mo, os, urllib):
-    # Two supported layouts, tried in this order:
-    #
-    #   BUNDLE  <folder>/assets/kinya_flex_tts.onnx     — self-contained, upload the folder
-    #   REPO    <root>/kinyarwanda_tts_app/...          — running inside the project
-    #
-    # __file__ is deliberately NOT trusted first: marimo may execute cells from a temp
-    # path (/tmp/marimo_*/__marimo__cell_*.py), so __file__ points nowhere useful and
-    # anything derived from it lands at the filesystem root.
-    BUNDLE_MARK = "assets/kinya_flex_tts.onnx"
-    REPO_MARKS  = ("kinya_flex_export", "kinyarwanda_tts_app")
+def _(Path, os):
+    # Hub coordinates. Override any of these from the environment.
+    ONNX_REPO    = os.environ.get("KINYA_ONNX_REPO", "emmilly/kinya-flex-tts-onnx")
+    ONNX_FILE    = os.environ.get("KINYA_ONNX_FILE", "kinya_flex_tts.onnx")
+    TORCH_REPO   = os.environ.get("KINYA_TORCH_REPO", "C4IR-RW/kinya-flex-tts")
+    TORCH_FILE   = os.environ.get("KINYA_TORCH_FILE", "kinya_flex_tts_base_trained.pt")
+    DATASET_REPO = os.environ.get("KINYA_DATASET_REPO", "C4IR-RW/kinya-ag-tts")
 
-    def _seeds():
-        for var in ("KINYA_BENCH", "KINYA_ROOT"):
-            if os.environ.get(var):
-                yield Path(os.environ[var])
-        # marimo's own answer to "where is this notebook?" — correct even when cells are
-        # executed from a temp file, which is exactly when __file__ is useless.
-        nbdir = mo.notebook_dir()
-        if nbdir is not None:
-            yield nbdir
-            yield from Path(nbdir).parents
-        cwd = Path.cwd()
-        yield cwd
-        yield from cwd.parents
-        # one level down, so running from the folder that *contains* the bundle works
-        try:
-            yield from (d for d in sorted(cwd.iterdir()) if d.is_dir())
-        except OSError:
-            pass
-        try:
-            here = Path(__file__).resolve().parent
-            yield here
-            yield from here.parents
-        except NameError:
-            pass
-
-    def _exists(path):
-        # Probing unreadable directories (e.g. /tmp/snap-private-tmp) raises rather than
-        # returning False, and one of those must not abort the whole search.
-        try:
-            return path.exists()
-        except OSError:
-            return False
-
-    def _locate():
-        for seed in _seeds():
-            try:
-                seed = seed.resolve()
-            except OSError:
-                continue
-            if _exists(seed / BUNDLE_MARK):
-                return "bundle", seed
-            if all(_exists(seed / m) for m in REPO_MARKS):
-                return "repo", seed
-        # Nothing local: fall back to fetching from GitHub into a cache beside the cwd.
-        return "github", Path(os.environ.get("KINYA_CACHE", Path.cwd() / "kinya_bench_cache"))
-
-    LAYOUT, ROOT = _locate()
-
-    if LAYOUT in ("bundle", "github"):
-        DATA    = ROOT / "data"
-        RESULTS = ROOT / "results"
-        MODEL   = ROOT / "assets/kinya_flex_tts.onnx"
-        DEEPKIN = ROOT / "assets"          # holds deepkin/ ; goes on sys.path
-        GOLDEN  = ROOT / "assets/kinya_flex_tokenizer_golden.json"
-    else:
-        DATA    = ROOT / "kinya_ag_sample"
-        RESULTS = ROOT / "exploration" / "results"
-        MODEL   = ROOT / "kinyarwanda_tts_app/assets/models/kinya_flex_tts.onnx"
-        DEEPKIN = ROOT / "vendor/ac-ai-models/DeepKIN-AgAI"
-        GOLDEN  = ROOT / "kinya_flex_export/kinya_flex_tokenizer_golden.json"
-
-    print(f"layout: {LAYOUT}\nroot:   {ROOT}")
-
-    HF   = "https://huggingface.co/datasets/C4IR-RW/kinya-ag-tts/resolve/main"
-    VOICES = ["female", "female2"]   # add "male"/"male2" to widen the sample
-    PER_CELL = 25                    # clips per (voice x length-bucket) cell
-    SEED = 7                         # fixed: the sample is part of the record
-
-    SR = 24000    # model output rate; the corpus is also 24 kHz
-    HOP = 256     # samples per model frame
-
-    # GitHub is the store for everything small: the tokenizer, the golden vectors and the
-    # sample manifest. The corpus audio comes from Hugging Face (cell 5). The model does
-    # NOT live on GitHub — at 136 MB it exceeds the 100 MB per-file limit — so it is found
-    # locally or pointed at with KINYA_MODEL.
-    GH_RAW = os.environ.get(
-        "KINYA_GH_RAW",
-        "https://raw.githubusercontent.com/maqamylee0/kinyarwanda_tts_short-words/main",
-    )
-    _FROM_GITHUB = {
-        GOLDEN:                         "exploration/notebooks/assets/kinya_flex_tokenizer_golden.json",
-        DEEPKIN / "deepkin/__init__.py":            "exploration/notebooks/assets/deepkin/__init__.py",
-        DEEPKIN / "deepkin/data/__init__.py":       "exploration/notebooks/assets/deepkin/data/__init__.py",
-        DEEPKIN / "deepkin/data/kinya_norm.py":     "exploration/notebooks/assets/deepkin/data/kinya_norm.py",
-        DEEPKIN / "deepkin/data/kinyarwanda.py":    "exploration/notebooks/assets/deepkin/data/kinyarwanda.py",
-        DEEPKIN / "deepkin/data/kinya_number_speller.py": "exploration/notebooks/assets/deepkin/data/kinya_number_speller.py",
-        DATA / "sample.tsv":            "exploration/notebooks/data/sample.tsv",
-    }
-
-    def ensure_from_github(dest, relpath):
-        if dest.exists():
-            return dest
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        url = f"{GH_RAW}/{relpath}"
-        with urllib.request.urlopen(url, timeout=60) as r:
-            dest.write_bytes(r.read())
-        print(f"  fetched {relpath}")
-        return dest
-
-    if LAYOUT == "github":
-        print("no local copy found — fetching from GitHub")
-        for _dest, _rel in _FROM_GITHUB.items():
-            ensure_from_github(_dest, _rel)
-
-    # The model is the one asset GitHub cannot store (136 MB vs a 100 MB per-file limit),
-    # so it lives on the Hugging Face Hub instead — the natural home for weights, and where
-    # the upstream checkpoint already is. Resolution: local copy, then KINYA_MODEL, then
-    # download from the Hub into the cache.
-    HF_MODEL_REPO = os.environ.get("KINYA_HF_MODEL_REPO", "maqamylee0/kinya-flex-tts-onnx")
-    MODEL_URL = os.environ.get(
-        "KINYA_MODEL_URL",
-        f"https://huggingface.co/{HF_MODEL_REPO}/resolve/main/kinya_flex_tts.onnx",
+    # Working directory for the sample manifest and results. Everything downloaded from the
+    # Hub lives in the standard HF cache instead, so repeated runs and other tools share it.
+    WORK = Path(os.environ.get("KINYA_WORK", Path.cwd() / "kinya_bench")).resolve()
+    DEEPKIN = WORK / "ac-ai-models" / "DeepKIN-AgAI"   # C4IR's tokenizer AND model code
+    RESULTS = WORK / "results"
+    GOLDEN_URL = (
+        "https://raw.githubusercontent.com/maqamylee0/kinyarwanda_tts_short-words/main/"
+        "exploration/notebooks/assets/kinya_flex_tokenizer_golden.json"
     )
 
-    if not MODEL.exists() and os.environ.get("KINYA_MODEL"):
-        MODEL = Path(os.environ["KINYA_MODEL"]).expanduser().resolve()
+    VOICES   = ["female", "female2"]  # add "male"/"male2" to widen the sample
+    PER_CELL = 25                     # clips per (voice x length-bucket) cell
+    SEED     = 7                      # fixed: the sample is part of the record
+    SR       = 24000                  # both the model output rate and the corpus rate
+    TORCH_SEED = 1234                 # matches C4IR's own export notebook
 
-    if not MODEL.exists():
-        print(f"model not local — downloading from {MODEL_URL}")
-        MODEL.parent.mkdir(parents=True, exist_ok=True)
-        tmp = MODEL.with_suffix(".onnx.part")
-        try:
-            with urllib.request.urlopen(MODEL_URL, timeout=120) as r:
-                total = int(r.headers.get("Content-Length") or 0)
-                done = step = 0
-                with open(tmp, "wb") as f:
-                    while True:
-                        chunk = r.read(1 << 20)
-                        if not chunk:
-                            break
-                        f.write(chunk)
-                        done += len(chunk)
-                        # every ~25 MB, so a captured log stays readable
-                        if done // (25 << 20) > step:
-                            step = done // (25 << 20)
-                            print(f"  {done / 1e6:.0f}"
-                                  + (f" / {total / 1e6:.0f}" if total else "") + " MB")
-            print(f"  {done / 1e6:.0f} MB done")
-            tmp.replace(MODEL)
-        except Exception as exc:
-            tmp.unlink(missing_ok=True)
-            raise RuntimeError(
-                f"Could not fetch the model from {MODEL_URL}\n  ({exc})\n"
-                "The model is 136 MB, over GitHub's 100 MB per-file limit, so it is not in "
-                "the git repo.\nEither:\n"
-                "  - point at a local copy:  KINYA_MODEL=/path/to/kinya_flex_tts.onnx\n"
-                "  - upload it once:         python exploration/upload_model_to_hf.py\n"
-                "  - or set KINYA_HF_MODEL_REPO / KINYA_MODEL_URL to where it actually lives"
-            ) from exc
-    if not GOLDEN.exists():
-        raise RuntimeError(f"Missing golden vectors: {GOLDEN}")
+    for _d in (WORK, RESULTS):
+        _d.mkdir(parents=True, exist_ok=True)
 
-    RESULTS.mkdir(parents=True, exist_ok=True)
-    DATA.mkdir(parents=True, exist_ok=True)
-    (DATA / "wav").mkdir(exist_ok=True)
-    return (DATA, DEEPKIN, GOLDEN, GH_RAW, HF, HF_MODEL_REPO, LAYOUT, MODEL, MODEL_URL,
-            PER_CELL, RESULTS, ROOT, SEED, SR, VOICES, ensure_from_github)
+    print(f"work dir: {WORK}")
+    print(f"onnx    : {ONNX_REPO}/{ONNX_FILE}")
+    print(f"torch   : {TORCH_REPO}/{TORCH_FILE}")
+    print(f"dataset : {DATASET_REPO}")
+    return (DATASET_REPO, DEEPKIN, GOLDEN_URL, ONNX_FILE, ONNX_REPO, PER_CELL,
+            RESULTS, SEED, SR, TORCH_FILE, TORCH_REPO, TORCH_SEED, VOICES, WORK)
 
 
-# ── Cell 4: dataset section header ───────────────────────────────────────────
+# ── Cell 4: hub helper ───────────────────────────────────────────────────────
+@app.cell
+def _():
+    from huggingface_hub import hf_hub_download
+
+    def hub(repo_id, filename, repo_type=None):
+        """Download via the HF cache: resumable, etag-checked, shared between runs."""
+        return hf_hub_download(repo_id=repo_id, filename=filename, repo_type=repo_type)
+
+    return (hub,)
+
+
+# ── Cell 5: tokenizer section ────────────────────────────────────────────────
 @app.cell
 def _(mo):
     mo.md(
         """
-        ## 1. The data
+        ## 1. The tokenizer, and why it gets a hard gate
 
-        A stratified sample across utterance lengths and voices — **not** the full 18k-clip
-        corpus. The draw is seeded, so the same clips come back every run and the sample is
-        part of the record rather than an accident.
+        This model is **not** character-level: its 126 symbols are Kinyarwanda consonant
+        clusters up to five characters (`nshyw`, `pfyw`), and text is normalised first —
+        numbers spelled out with noun-class concord, punctuation spaced, ASCII-folded.
+
+        Every single letter is *also* in the vocabulary, so a wrong tokenizer does not
+        throw. It produces confident, fluent speech saying the wrong thing. The failure is
+        silent, and invisible to a non-speaker.
+
+        We use C4IR's own `deepkin` — the same package that supplies the torch model below —
+        and **refuse to continue** unless it reproduces all 15 golden vectors from the ONNX
+        export.
         """
     )
     return
 
 
-# ── Cell 5: download the stratified sample ───────────────────────────────────
+# ── Cell 6: deepkin + tokenizer gate ─────────────────────────────────────────
 @app.cell
-def _(DATA, HF, PER_CELL, SEED, ThreadPoolExecutor, VOICES, random, urllib):
+def _(DEEPKIN, GOLDEN_URL, json, subprocess, sys):
+    import urllib.request
+
+    # The clone destination is DEEPKIN's parent: DEEPKIN itself is the DeepKIN-AgAI
+    # subdirectory inside the repo.
+    REPO_DIR = DEEPKIN.parent
+    if not (DEEPKIN / "deepkin").is_dir():
+        if REPO_DIR.exists() and any(REPO_DIR.iterdir()):
+            raise RuntimeError(
+                f"{REPO_DIR} exists but has no DeepKIN-AgAI/deepkin inside — most likely a "
+                f"half-finished clone. Remove it and re-run:\n    rm -rf {REPO_DIR}")
+        REPO_DIR.parent.mkdir(parents=True, exist_ok=True)
+        print("cloning C4IR's deepkin (tokenizer + model code) ...")
+        subprocess.run(["git", "clone", "-q", "--depth", "1",
+                        "https://github.com/c4ir-rw/ac-ai-models.git", str(REPO_DIR)],
+                       check=True)
+    # Neutralise the eager native-bindings import, as C4IR's export notebook does.
+    (DEEPKIN / "deepkin/__init__.py").write_text("")
+    if str(DEEPKIN) not in sys.path:
+        sys.path.insert(0, str(DEEPKIN))
+
+    from deepkin.data.kinya_norm import norm_text, text_to_sequence, tts_symbols
+
+    def intersperse(lst, item=0):
+        """Verbatim from deepkin.modules.tts_commons."""
+        result = [item] * (len(lst) * 2 + 1)
+        result[1::2] = lst
+        return result
+
+    def text_to_ids(text):
+        return intersperse(text_to_sequence(text, norm=True), 0)
+
+    _gold = DEEPKIN.parent.parent / "kinya_flex_tokenizer_golden.json"
+    if not _gold.exists():
+        with urllib.request.urlopen(GOLDEN_URL, timeout=60) as _r:
+            _gold.write_bytes(_r.read())
+    _cases = json.loads(_gold.read_text())["cases"]
+    _bad = [c["text"] for c in _cases
+            if text_to_sequence(c["text"], norm=True) != c["ids"]
+            or intersperse(text_to_sequence(c["text"], norm=True), 0) != c["ids_interspersed"]]
+    assert not _bad, f"tokenizer does not match golden vectors: {_bad}"
+    print(f"tokenizer OK — {len(_cases)}/{len(_cases)} golden cases, {len(tts_symbols)} symbols")
+    print("example:", norm_text("Umuhinzi yaguze ibiro 25 by'ifumbire."))
+    return norm_text, text_to_ids, tts_symbols
+
+
+# ── Cell 7: data section ─────────────────────────────────────────────────────
+@app.cell
+def _(mo):
+    mo.md(
+        """
+        ## 2. The corpus
+
+        A seeded stratified sample across utterance lengths and voices — 250 clips, **not**
+        the full 18k. Same clips every run, so the sample is part of the record rather than
+        an accident. Fetched file by file from the Hub and cached.
+        """
+    )
+    return
+
+
+# ── Cell 8: sample + audio download ──────────────────────────────────────────
+@app.cell
+def _(DATASET_REPO, PER_CELL, SEED, ThreadPoolExecutor, VOICES, WORK, hub, random):
     def _bucket(n):
         return 2 if n <= 2 else (3 if n == 3 else (5 if n <= 6 else (10 if n <= 12 else 20)))
 
-    def _get(url, dest, tries=3):
-        for attempt in range(tries):
-            try:
-                with urllib.request.urlopen(url, timeout=60) as r:
-                    dest.write_bytes(r.read())
-                return dest.stat().st_size > 1000
-            except Exception:
-                if attempt == tries - 1:
-                    return False
-        return False
-
     def build_sample():
-        """Draw the sample if absent; reuse it verbatim if already on disk."""
-        tsv = DATA / "sample.tsv"
+        tsv = WORK / "sample.tsv"
         if tsv.exists():
             rows = [l.split("\t", 2) for l in tsv.read_text(encoding="utf-8").splitlines() if l]
-            print(f"reusing existing sample.tsv ({len(rows)} rows) — not redrawing")
+            print(f"reusing sample.tsv ({len(rows)} rows) — not redrawing")
         else:
             pool = []
             for voice in VOICES:
-                man = DATA / f"rw_ag_tts_{voice}.tsv"
-                if not man.exists():
-                    _get(f"{HF}/rw_ag_tts_{voice}.tsv", man)
-                for line in man.read_text(encoding="utf-8").splitlines():
-                    parts = line.split("\t")
+                man = hub(DATASET_REPO, f"rw_ag_tts_{voice}.tsv", repo_type="dataset")
+                for line in open(man, encoding="utf-8"):
+                    parts = line.rstrip("\n").split("\t")
                     if len(parts) >= 2 and parts[1].strip():
                         pool.append((voice, parts[0], "\t".join(parts[1:]).strip()))
             cells = {}
@@ -306,117 +253,22 @@ def _(DATA, HF, PER_CELL, SEED, ThreadPoolExecutor, VOICES, random, urllib):
                 rows += rng.sample(cells[key], min(PER_CELL, len(cells[key])))
             tsv.write_text("\n".join("\t".join(r) for r in rows), encoding="utf-8")
             print(f"drew {len(rows)} clips from {len(pool)} (seed={SEED}, {PER_CELL}/cell)")
-
-        missing = [(v, i) for v, i, _ in rows if not (DATA / "wav" / f"{v}_{i}.wav").exists()]
-        if missing:
-            print(f"downloading {len(missing)} wavs ...")
-            with ThreadPoolExecutor(max_workers=8) as ex:
-                list(ex.map(
-                    lambda vi: _get(f"{HF}/rw_ag_tts_{vi[0]}/{vi[1]}.wav",
-                                    DATA / "wav" / f"{vi[0]}_{vi[1]}.wav"),
-                    missing))
-        have = sum((DATA / "wav" / f"{v}_{i}.wav").exists() for v, i, _ in rows)
-        print(f"{have}/{len(rows)} clips present in {DATA}")
         return rows
 
     sample_rows = build_sample()
-    return (sample_rows,)
 
+    def fetch_one(row):
+        voice, cid, _ = row
+        try:
+            return hub(DATASET_REPO, f"rw_ag_tts_{voice}/{cid}.wav", repo_type="dataset")
+        except Exception:
+            return None
 
-# ── Cell 6: tokenizer note ───────────────────────────────────────────────────
-@app.cell
-def _(mo):
-    mo.md(
-        """
-        ## 2. The tokenizer, and why it gets a hard gate
-
-        This model is **not** character-level: its 126 symbols are Kinyarwanda consonant
-        clusters up to five characters (`nshyw`, `pfyw`), and text is normalised first —
-        numbers spelled out with noun-class concord, punctuation spaced, ASCII-folded.
-
-        Every single letter is *also* in the vocabulary, so a wrong tokenizer does not
-        throw. It produces confident, fluent speech saying the wrong thing. The failure is
-        silent, and invisible to a non-speaker.
-
-        So we use C4IR's own `deepkin` tokenizer, and **refuse to continue** unless it
-        reproduces all 15 golden vectors from the ONNX export.
-        """
-    )
-    return
-
-
-# ── Cell 7: tokenizer + golden-vector gate ───────────────────────────────────
-@app.cell
-def _(DEEPKIN, GOLDEN, LAYOUT, json, subprocess, sys):
-    # DEEPKIN is <root>/vendor/ac-ai-models/DeepKIN-AgAI, so the clone destination is its
-    # PARENT (the repo dir). Cloning into DEEPKIN.parent/"ac-ai-models" nests it one level
-    # too deep and the tokenizer is then never found.
-    REPO = DEEPKIN.parent
-    if not (DEEPKIN / "deepkin").is_dir():
-        if LAYOUT in ("bundle", "github"):
-            raise RuntimeError(f"tokenizer missing: {DEEPKIN / 'deepkin'}")
-        if REPO.exists() and any(REPO.iterdir()):
-            raise RuntimeError(
-                f"{REPO} exists but has no DeepKIN-AgAI/deepkin inside — most likely a "
-                f"half-finished clone. Remove it and re-run:\n    rm -rf {REPO}")
-        REPO.parent.mkdir(parents=True, exist_ok=True)
-        subprocess.run(
-            ["git", "clone", "-q", "--depth", "1",
-             "https://github.com/c4ir-rw/ac-ai-models.git", str(REPO)], check=True)
-        print(f"cloned the tokenizer to {REPO}")
-    if not (DEEPKIN / "deepkin").is_dir():
-        raise RuntimeError(f"tokenizer still missing at {DEEPKIN} after clone")
-
-    # Neutralise the eager native-bindings import, as C4IR's export notebook does.
-    # Idempotent, so it is safe to repeat on an existing checkout.
-    (DEEPKIN / "deepkin/__init__.py").write_text("")
-
-    if str(DEEPKIN) not in sys.path:
-        sys.path.insert(0, str(DEEPKIN))
-
-    from deepkin.data.kinya_norm import norm_text, text_to_sequence, tts_symbols
-
-    def intersperse(lst, item=0):
-        """Verbatim from deepkin.modules.tts_commons (inlined only to avoid a torch import)."""
-        result = [item] * (len(lst) * 2 + 1)
-        result[1::2] = lst
-        return result
-
-    def text_to_ids(text):
-        return intersperse(text_to_sequence(text, norm=True), 0)
-
-    _cases = json.loads(GOLDEN.read_text())["cases"]
-    _bad = [c["text"] for c in _cases
-            if text_to_sequence(c["text"], norm=True) != c["ids"]
-            or intersperse(text_to_sequence(c["text"], norm=True), 0) != c["ids_interspersed"]]
-    assert not _bad, f"tokenizer does not match golden vectors: {_bad}"
-    print(f"tokenizer OK — {len(_cases)}/{len(_cases)} golden cases, {len(tts_symbols)} symbols")
-    print("example:", norm_text("Umuhinzi yaguze ibiro 25 by'ifumbire."))
-    return norm_text, text_to_ids, tts_symbols
-
-
-# ── Cell 8: the model ────────────────────────────────────────────────────────
-@app.cell
-def _(MODEL, np, text_to_ids):
-    import onnxruntime as ort
-
-    _sess = ort.InferenceSession(str(MODEL), providers=["CPUExecutionProvider"])
-
-    def synth(text, sid=0, length_scale=1.0, noise_scale=0.0):
-        """float32 PCM @ 24 kHz. noise_scale=0 makes repeat calls bit-identical."""
-        ids = text_to_ids(text)
-        y = _sess.run(["y"], {
-            "x":            np.array([ids], dtype=np.int64),
-            "x_length":     np.array([len(ids)], dtype=np.int64),
-            "sid":          np.array([sid], dtype=np.int64),
-            "noise_scale":  np.array([noise_scale], dtype=np.float32),
-            "length_scale": np.array([length_scale], dtype=np.float32),
-        })[0]
-        return y.reshape(-1)
-
-    print("outputs:", [o.name for o in _sess.get_outputs()],
-          "— no per-token durations exposed; exact word cropping needs a re-export")
-    return (synth,)
+    print(f"fetching {len(sample_rows)} clips from the Hub (cached after the first run) ...")
+    with ThreadPoolExecutor(max_workers=8) as _ex:
+        wav_paths = list(_ex.map(fetch_one, sample_rows))
+    print(f"  {sum(p is not None for p in wav_paths)}/{len(sample_rows)} present")
+    return sample_rows, wav_paths
 
 
 # ── Cell 9: audio helpers ────────────────────────────────────────────────────
@@ -446,19 +298,18 @@ def _(np, wave):
     return read_wav, speech_seconds
 
 
-# ── Cell 10: load the sample ─────────────────────────────────────────────────
+# ── Cell 10: load the clips ──────────────────────────────────────────────────
 @app.cell
-def _(DATA, re, sample_rows):
+def _(re, sample_rows, wav_paths):
     clips = []
-    for _v, _i, _t in sample_rows:
-        _p = DATA / "wav" / f"{_v}_{_i}.wav"
-        if _p.exists() and _p.stat().st_size > 1000:
+    for (_v, _i, _t), _p in zip(sample_rows, wav_paths):
+        if _p:
             clips.append(dict(voice=_v, cid=_i, text=_t, wav=_p,
                               words=len(_t.split()),
                               has_digits=bool(re.search(r"\d", _t))))
 
-    # rw_ag_tts_female -> sid 0, female2 -> sid 1. ASSUMPTION: C4IR does not document
-    # which corpus voice is which model speaker. Section 3 lets you hear it; flip if wrong.
+    # ASSUMPTION, undocumented by C4IR: rw_ag_tts_female -> sid 0, female2 -> sid 1.
+    # Section 4 plays human and model back to back, so a wrong mapping is audible.
     SID = {"female": 0, "female2": 1, "male": 2, "male2": 2}
 
     print(f"{len(clips)} clips loaded")
@@ -468,22 +319,111 @@ def _(DATA, re, sample_rows):
     return SID, clips
 
 
-# ── Cell 11: listening lab header ────────────────────────────────────────────
+# ── Cell 11: engines section ─────────────────────────────────────────────────
 @app.cell
 def _(mo):
     mo.md(
         """
-        ## 3. Listen: human vs model
+        ## 3. The two engines
 
-        Pick a sentence and a speed. Both clips are peak-normalised, so you are judging
-        **timing and articulation, not loudness**. Move the slider and the model re-renders
-        immediately.
+        Both take the same token ids from the same tokenizer, so any difference between
+        them is the conversion, not the text.
+
+        `noise_scale=0` throughout: it makes repeated synthesis bit-identical, which is what
+        a measurement needs. The duration predictor is deterministic either way.
         """
     )
     return
 
 
-# ── Cell 12: controls ────────────────────────────────────────────────────────
+# ── Cell 12: ONNX engine ─────────────────────────────────────────────────────
+@app.cell
+def _(ONNX_FILE, ONNX_REPO, hub, np, text_to_ids):
+    import onnxruntime as ort
+
+    _onnx_path = hub(ONNX_REPO, ONNX_FILE)
+    _sess = ort.InferenceSession(str(_onnx_path), providers=["CPUExecutionProvider"])
+
+    def synth_onnx(text, sid=0, length_scale=1.0, noise_scale=0.0):
+        ids = text_to_ids(text)
+        y = _sess.run(["y"], {
+            "x":            np.array([ids], dtype=np.int64),
+            "x_length":     np.array([len(ids)], dtype=np.int64),
+            "sid":          np.array([sid], dtype=np.int64),
+            "noise_scale":  np.array([noise_scale], dtype=np.float32),
+            "length_scale": np.array([length_scale], dtype=np.float32),
+        })[0]
+        return y.reshape(-1)
+
+    print(f"onnx  ready: {_onnx_path}")
+    print(f"  outputs {[o.name for o in _sess.get_outputs()]} — no per-token durations, so "
+          f"exact word cropping would need a re-export")
+    return (synth_onnx,)
+
+
+# ── Cell 13: torch engine ────────────────────────────────────────────────────
+@app.cell
+def _(TORCH_FILE, TORCH_REPO, TORCH_SEED, hub, text_to_ids):
+    # C4IR publishes only a training checkpoint (generator + discriminators + optimizers),
+    # so this is 1.11 GB and loading takes a moment. from_pretrained strips it for us.
+    synth_torch = None
+    TORCH_ERROR = None
+    try:
+        import torch
+        from deepkin.models.flex_tts import FlexKinyaTTS
+
+        _ckpt = hub(TORCH_REPO, TORCH_FILE)
+        _tts = FlexKinyaTTS.from_pretrained(torch.device("cpu"), _ckpt)
+        _tts.eval()
+        _net = _tts.flex_tts
+
+        def synth_torch(text, sid=0, length_scale=1.0, noise_scale=0.0):  # noqa: F811
+            ids = text_to_ids(text)
+            x = torch.LongTensor(ids).unsqueeze(0)
+            xl = torch.LongTensor([x.size(1)])
+            s = torch.LongTensor([sid])
+            torch.manual_seed(TORCH_SEED)
+            with torch.no_grad():
+                out = _net.infer(x, xl, s, noise_scale=noise_scale,
+                                 length_scale=length_scale)
+            return out[0][0].cpu().float().numpy().reshape(-1)
+
+        _n = sum(p.numel() for p in _net.parameters()) / 1e6
+        print(f"torch ready: {_ckpt}\n  {_n:.1f}M generator params")
+    except Exception as exc:                                    # noqa: BLE001
+        TORCH_ERROR = f"{type(exc).__name__}: {exc}"
+        print(f"torch UNAVAILABLE — {TORCH_ERROR}")
+        print("  the bench continues with ONNX only; the export-fidelity check (section 6)")
+        print("  and the torch column will be skipped.")
+        print("  deps: torch, typed-argument-parser, librosa  (all in the script header)")
+    return TORCH_ERROR, synth_torch
+
+
+# ── Cell 14: engine registry ─────────────────────────────────────────────────
+@app.cell
+def _(synth_onnx, synth_torch):
+    ENGINES = {"onnx": synth_onnx}
+    if synth_torch is not None:
+        ENGINES["torch"] = synth_torch
+    print("engines:", ", ".join(ENGINES))
+    return (ENGINES,)
+
+
+# ── Cell 15: listening section ───────────────────────────────────────────────
+@app.cell
+def _(mo):
+    mo.md(
+        """
+        ## 4. Listen: human vs each engine
+
+        All clips are peak-normalised, so you are judging **timing and articulation, not
+        loudness**. Move the slider and both models re-render.
+        """
+    )
+    return
+
+
+# ── Cell 16: controls ────────────────────────────────────────────────────────
 @app.cell
 def _(clips, mo):
     pick = mo.ui.dropdown(
@@ -499,138 +439,189 @@ def _(clips, mo):
     return pick, speed
 
 
-# ── Cell 13: the comparison ──────────────────────────────────────────────────
+# ── Cell 17: the comparison ──────────────────────────────────────────────────
 @app.cell
-def _(SID, clips, mo, pick, read_wav, speech_seconds, speed, synth, SR):
+def _(ENGINES, SID, SR, clips, mo, pick, read_wav, speech_seconds, speed):
     _c = clips[pick.value if pick.value is not None else 0]
     _hw, _hsr = read_wav(_c["wav"])
-    _mw = synth(_c["text"], sid=SID.get(_c["voice"], 0), length_scale=speed.value)
-    _h, _m = speech_seconds(_hw, _hsr), speech_seconds(_mw, SR)
-    _ratio = _m / _h if _h > 0 else float("nan")
+    _h = speech_seconds(_hw, _hsr)
 
-    mo.vstack([
+    _blocks = [
         mo.md(f"**{_c['voice']}/{_c['cid']}** — {_c['words']} words"
               + ("  ⚠️ contains digits" if _c["has_digits"] else "")),
         mo.md(f"> {_c['text']}"),
-        mo.hstack([
-            mo.stat(f"{_h:.2f}s", label="human"),
-            mo.stat(f"{_m:.2f}s", label=f"model @ {speed.value}"),
-            mo.stat(f"{_ratio:.2f}", label="ratio",
-                    caption="model rushes" if _ratio < 0.9 else
-                            ("model drags" if _ratio > 1.1 else "matched")),
-        ], justify="start", gap=2),
-        mo.md("**human**"), mo.audio(_hw, rate=_hsr, normalize=True),
-        mo.md("**model**"), mo.audio(_mw, rate=SR, normalize=True),
-    ])
+    ]
+    _stats = [mo.stat(f"{_h:.2f}s", label="human")]
+    _players = [mo.md("**human**"), mo.audio(_hw, rate=_hsr, normalize=True)]
+    for _name, _fn in ENGINES.items():
+        _w = _fn(_c["text"], sid=SID.get(_c["voice"], 0), length_scale=speed.value)
+        _s = speech_seconds(_w, SR)
+        _r = _s / _h if _h > 0 else float("nan")
+        _stats.append(mo.stat(f"{_s:.2f}s", label=_name,
+                              caption=f"ratio {_r:.2f}"
+                                      + (" · rushes" if _r < 0.9 else "")))
+        _players += [mo.md(f"**{_name}**"), mo.audio(_w, rate=SR, normalize=True)]
+
+    mo.vstack(_blocks + [mo.hstack(_stats, justify="start", gap=2)] + _players)
     return
 
 
-# ── Cell 14: measurement header ──────────────────────────────────────────────
+# ── Cell 18: measurement section ─────────────────────────────────────────────
 @app.cell
 def _(mo):
     mo.md(
         """
-        ## 4. The measurement
+        ## 5. The measurement
 
-        Every clip, no listening. Rows containing digits are **excluded**: `Telefoni:
-        0784009558` is two words of text that take six seconds to read aloud, and it
-        wrecks any per-word or per-syllable statistic.
+        Every clip, every engine, no listening. Rows containing digits are **excluded**:
+        `Telefoni: 0784009558` is two words of text that take six seconds to read aloud,
+        and it wrecks any per-word statistic.
         """
     )
     return
 
 
-# ── Cell 15: aggregate ───────────────────────────────────────────────────────
+# ── Cell 19: aggregate ───────────────────────────────────────────────────────
 @app.cell
-def _(SID, clips, np, read_wav, speech_seconds, speed, synth, SR):
+def _(ENGINES, SID, SR, clips, np, read_wav, speech_seconds, speed):
+    BUCKETS = [(1, 2, "1-2"), (3, 3, "3"), (4, 6, "4-6"), (7, 12, "7-12"), (13, 999, "13+")]
+
     def measure(length_scale):
-        out = []
+        rows = []
         for c in clips:
             if c["has_digits"]:
                 continue
             hw, hsr = read_wav(c["wav"])
-            mw = synth(c["text"], sid=SID.get(c["voice"], 0), length_scale=length_scale)
-            h, m = speech_seconds(hw, hsr), speech_seconds(mw, SR)
-            if h > 0:
-                out.append(dict(voice=c["voice"], cid=c["cid"], words=c["words"],
-                                human_s=h, model_s=m, ratio=m / h))
-        return out
+            h = speech_seconds(hw, hsr)
+            if h <= 0:
+                continue
+            rec = dict(voice=c["voice"], cid=c["cid"], words=c["words"], human_s=h)
+            for name, fn in ENGINES.items():
+                m = speech_seconds(fn(c["text"], sid=SID.get(c["voice"], 0),
+                                      length_scale=length_scale), SR)
+                rec[f"{name}_s"] = m
+                rec[f"{name}_ratio"] = m / h
+            rows.append(rec)
+        return rows
 
     measured = measure(speed.value)
-    _r = np.array([x["ratio"] for x in measured])
 
-    BUCKETS = [(1, 2, "1-2"), (3, 3, "3"), (4, 6, "4-6"), (7, 12, "7-12"), (13, 999, "13+")]
     by_len = []
+    print(f"n = {len(measured)} clips at lengthScale {speed.value}\n")
+    for _name in ENGINES:
+        _r = np.array([x[f"{_name}_ratio"] for x in measured])
+        print(f"{_name}: median {np.median(_r):.3f}  mean {_r.mean():.3f}  "
+              f"p5 {np.percentile(_r, 5):.3f}  p95 {np.percentile(_r, 95):.3f}  "
+              f"faster than human {100 * (_r < 1).mean():.0f}%")
+    print(f"\n{'words':<8}{'n':>5}" + "".join(f"{n + ' median':>16}" for n in ENGINES))
     for _lo, _hi, _lbl in BUCKETS:
-        _v = [x["ratio"] for x in measured if _lo <= x["words"] <= _hi]
-        if _v:
-            by_len.append(dict(bucket=_lbl, n=len(_v), median=float(np.median(_v)),
-                               implied_length_scale=float(speed.value / np.median(_v))))
+        _sub = [x for x in measured if _lo <= x["words"] <= _hi]
+        if not _sub:
+            continue
+        _row = dict(bucket=_lbl, n=len(_sub))
+        _line = f"{_lbl:<8}{len(_sub):>5}"
+        for _name in ENGINES:
+            _m = float(np.median([x[f"{_name}_ratio"] for x in _sub]))
+            _row[_name] = _m
+            _row[f"{_name}_implied_length_scale"] = speed.value / _m
+            _line += f"{_m:>16.3f}"
+        by_len.append(_row)
+        print(_line)
+    return BUCKETS, by_len, measured
 
-    print(f"n = {len(_r)} clips at lengthScale {speed.value}")
-    print(f"  median ratio {np.median(_r):.3f}   mean {_r.mean():.3f}   "
-          f"p5 {np.percentile(_r, 5):.3f}  p95 {np.percentile(_r, 95):.3f}")
-    print(f"  model faster than human: {(_r < 1).sum()}/{len(_r)} ({100 * (_r < 1).mean():.0f}%)")
-    print(f"\n{'words':<8}{'n':>5}{'median ratio':>15}{'implied lengthScale':>22}")
-    for _b in by_len:
-        print(f"{_b['bucket']:<8}{_b['n']:>5}{_b['median']:>15.3f}{_b['implied_length_scale']:>22.2f}")
-    return by_len, measured
 
-
-# ── Cell 16: plots ───────────────────────────────────────────────────────────
+# ── Cell 20: plots ───────────────────────────────────────────────────────────
 @app.cell
-def _(measured, np, speed):
+def _(ENGINES, measured, np, speed):
     import matplotlib.pyplot as plt
 
-    _r = np.array([x["ratio"] for x in measured])
-    _w = np.array([x["words"] for x in measured])
     _fig, _ax = plt.subplots(1, 2, figsize=(11, 3.6))
-    _ax[0].hist(_r, bins=24, color="#4878a8", edgecolor="white")
+    _colors = {"onnx": "#4878a8", "torch": "#c86a3a"}
+    for _name in ENGINES:
+        _r = np.array([x[f"{_name}_ratio"] for x in measured])
+        _w = np.array([x["words"] for x in measured])
+        _c = _colors.get(_name, "#666")
+        _ax[0].hist(_r, bins=24, alpha=.55, color=_c, label=_name)
+        _ax[1].scatter(_w, _r, s=14, alpha=.55, color=_c, label=_name)
     _ax[0].axvline(1.0, color="#b00", lw=1.5, label="human pace")
-    _ax[0].axvline(np.median(_r), color="#222", ls="--", lw=1.2,
-                   label=f"median {np.median(_r):.2f}")
     _ax[0].set_xlabel("model duration / human duration")
     _ax[0].set_ylabel("clips")
     _ax[0].legend(fontsize=8)
     _ax[0].set_title(f"Faster than the actress?  (lengthScale {speed.value})", fontsize=10)
-
-    _ax[1].scatter(_w, _r, s=14, alpha=.6, color="#4878a8")
     _ax[1].axhline(1.0, color="#b00", lw=1.5)
     _ax[1].set_xscale("log")
     _ax[1].set_xlabel("words in utterance (log)")
     _ax[1].set_ylabel("ratio")
+    _ax[1].legend(fontsize=8)
     _ax[1].set_title("Does the gap widen on short utterances?", fontsize=10)
     plt.tight_layout()
     _fig
     return
 
 
-# ── Cell 17: reading the result ──────────────────────────────────────────────
+# ── Cell 21: fidelity section ────────────────────────────────────────────────
 @app.cell
 def _(mo):
     mo.md(
         """
-        **How to read the right-hand plot.** If the ratio sits near 1.0 on long sentences
-        and falls as utterances shorten, the model learned this actress's sentence pacing
-        and only mishandles short input — which is what the corpus predicts, since it holds
-        2 single-word rows out of 17,969 and both are the spreadsheet error `Err:508`.
+        ## 6. Did our ONNX export change anything?
 
-        If the ratio were uniformly below 1.0, the model would be globally fast and one
-        `lengthScale` would fix it everywhere.
+        The control. Same tokens, same `noise_scale=0`, both engines — so any difference
+        here is the conversion, not the model.
+
+        This matters because every claim in the findings is measured on the ONNX. If the
+        export altered the duration predictor, the claims would be about our artefact
+        rather than about C4IR's model.
+
+        **Note on C4IR's own sample files:** `kinya_flex_export/samples/ref_torch_spk*.wav`
+        and `fp32_spk*.wav` cannot be used for this. They render *different sentences* —
+        `TEST_SENTENCES[0]` against `TEST_SENTENCES[2]` — so comparing them shows a large
+        spurious difference. Only a matched-text run like this one answers the question.
         """
     )
     return
 
 
-# ── Cell 18: isolated words header ───────────────────────────────────────────
+# ── Cell 22: fidelity check ──────────────────────────────────────────────────
+@app.cell
+def _(ENGINES, SR, clips, np, speech_seconds, synth_onnx, synth_torch):
+    if synth_torch is None:
+        print("torch engine unavailable — fidelity check skipped")
+        fidelity = []
+    else:
+        fidelity = []
+        _texts = [c for c in clips if not c["has_digits"]][:12]
+        print(f"{'clip':<16}{'words':>6}{'onnx s':>9}{'torch s':>9}{'delta':>8}"
+              f"{'samples eq':>12}{'corr':>9}")
+        for _c in _texts:
+            _o = synth_onnx(_c["text"], sid=0, noise_scale=0.0)
+            _t = synth_torch(_c["text"], sid=0, noise_scale=0.0)
+            _n = min(len(_o), len(_t))
+            _corr = float(np.corrcoef(_o[:_n], _t[:_n])[0, 1]) if _n > 1 else float("nan")
+            _os, _ts = speech_seconds(_o, SR), speech_seconds(_t, SR)
+            fidelity.append(dict(cid=_c["cid"], words=_c["words"], onnx_s=_os, torch_s=_ts,
+                                 samples_onnx=len(_o), samples_torch=len(_t), corr=_corr))
+            print(f"{_c['voice'][:6] + '/' + _c['cid']:<16}{_c['words']:>6}{_os:>9.3f}"
+                  f"{_ts:>9.3f}{_os - _ts:>8.3f}{str(len(_o) == len(_t)):>12}{_corr:>9.5f}")
+        _same = sum(f["samples_onnx"] == f["samples_torch"] for f in fidelity)
+        _mc = float(np.mean([f["corr"] for f in fidelity]))
+        print(f"\nidentical sample counts: {_same}/{len(fidelity)}   mean corr {_mc:.5f}")
+        print("A faithful export gives identical sample counts and corr ~1.0.")
+        print("Identical counts with low corr would mean same timing, different waveform;")
+        print("differing counts would mean the export moved the duration predictor.")
+    return (fidelity,)
+
+
+# ── Cell 23: isolated words ──────────────────────────────────────────────────
 @app.cell
 def _(mo):
     mo.md(
         """
-        ## 5. Isolated words — the untrained case
+        ## 7. Isolated words — the untrained case
 
-        No human reference exists here: the corpus contains no genuine single-word
-        recordings, so this section **cannot be scored**, only listened to.
+        No human reference exists: the corpus holds 2 single-word rows out of 17,969, and
+        both are the spreadsheet error string `Err:508`. So this section **cannot be
+        scored**, only listened to.
 
         The carrier puts the word **last, before a full stop**, so it picks up phrase-final
         lengthening — unlike `vuga <word> neza`, which buries it mid-phrase where it is
@@ -640,7 +631,7 @@ def _(mo):
     return
 
 
-# ── Cell 19: word controls ───────────────────────────────────────────────────
+# ── Cell 24: word controls ───────────────────────────────────────────────────
 @app.cell
 def _(mo):
     word = mo.ui.text(value="icunga", label="word")
@@ -651,72 +642,81 @@ def _(mo):
     return word, wsid, wspeed
 
 
-# ── Cell 20: isolated word output ────────────────────────────────────────────
+# ── Cell 25: isolated word output ────────────────────────────────────────────
 @app.cell
-def _(mo, np, speech_seconds, synth, word, wsid, wspeed, SR):
+def _(ENGINES, SR, mo, np, speech_seconds, word, wsid, wspeed):
     CARRIER = "Iri jambo ni {}."
 
     _w = word.value.strip() or "icunga"
-    _bare = synth(_w, sid=wsid.value, length_scale=wspeed.value)
-    _car = synth(CARRIER.format(_w), sid=wsid.value, length_scale=wspeed.value)
-
-    mo.vstack([
-        mo.hstack([
-            mo.stat(f"{speech_seconds(_bare, SR):.2f}s", label="isolated"),
-            mo.stat(f"{np.abs(_bare).max():.3f}", label="raw peak",
-                    caption="under 0.10 sounds mumbled"),
-        ], justify="start", gap=2),
-        mo.md(f"**“{_w}” alone**"), mo.audio(_bare, rate=SR, normalize=True),
-        mo.md(f"**in carrier — “{CARRIER.format(_w)}”**"), mo.audio(_car, rate=SR, normalize=True),
-    ])
+    _out = [mo.md(f"### “{_w}”")]
+    for _name, _fn in ENGINES.items():
+        _bare = _fn(_w, sid=wsid.value, length_scale=wspeed.value)
+        _car = _fn(CARRIER.format(_w), sid=wsid.value, length_scale=wspeed.value)
+        _out += [
+            mo.hstack([
+                mo.stat(f"{speech_seconds(_bare, SR):.2f}s", label=f"{_name} isolated"),
+                mo.stat(f"{np.abs(_bare).max():.3f}", label="raw peak",
+                        caption="under 0.10 sounds mumbled"),
+            ], justify="start", gap=2),
+            mo.md(f"**{_name} — alone**"), mo.audio(_bare, rate=SR, normalize=True),
+            mo.md(f"**{_name} — carrier “{CARRIER.format(_w)}”**"),
+            mo.audio(_car, rate=SR, normalize=True),
+        ]
+    mo.vstack(_out)
     return
 
 
-# ── Cell 21: level across voices ─────────────────────────────────────────────
+# ── Cell 26: level across voices ─────────────────────────────────────────────
 @app.cell
-def _(np, synth):
+def _(np, synth_onnx):
     WORDS = ["icunga", "amazi", "inka", "umwana", "ishuri", "ibirayi", "umuhinzi", "ifumbire"]
 
-    print("raw peak on isolated words (before normalisation)")
+    print("raw peak on isolated words, ONNX (before normalisation)")
     print(f"{'word':<12}{'Female 1':>10}{'Female 2':>10}{'Male':>8}")
     peaks_by_word = {}
     for _w in WORDS:
-        _p = [float(np.abs(synth(_w, sid=s)).max()) for s in (0, 1, 2)]
+        _p = [float(np.abs(synth_onnx(_w, sid=s)).max()) for s in (0, 1, 2)]
         peaks_by_word[_w] = _p
         print(f"{_w:<12}{_p[0]:>10.3f}{_p[1]:>10.3f}{_p[2]:>8.3f}"
               f"{'   <- very quiet' if _p[0] < 0.10 else ''}")
     return WORDS, peaks_by_word
 
 
-# ── Cell 22: record the run ──────────────────────────────────────────────────
+# ── Cell 27: record the run ──────────────────────────────────────────────────
 @app.cell
 def _(mo):
-    save = mo.ui.run_button(label="save this run to exploration/results/")
+    save = mo.ui.run_button(label="save this run to the results folder")
     save
     return (save,)
 
 
 @app.cell
-def _(RESULTS, by_len, datetime, json, measured, np, os, peaks_by_word, save, speed, timezone):
-    # BENCH_SAVE=1 records the run without the button, so a headless
-    # `marimo export html` is reproducible for the paper.
+def _(DATASET_REPO, ENGINES, ONNX_REPO, RESULTS, TORCH_ERROR, TORCH_REPO, by_len,
+      datetime, fidelity, json, measured, np, os, peaks_by_word, save, speed, timezone):
+    # BENCH_SAVE=1 records the run without the button, so a headless export is
+    # reproducible for the paper.
     if save.value or os.environ.get("BENCH_SAVE"):
-        _r = np.array([x["ratio"] for x in measured])
         _stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         _blob = {
             "run_utc": _stamp,
             "notebook": "exploration/notebooks/01_rushing_bench.py",
-            "model": "C4IR-RW/kinya-flex-tts (ONNX fp32)",
-            "corpus": "C4IR-RW/kinya-ag-tts",
+            "sources": {"onnx": ONNX_REPO, "torch": TORCH_REPO, "corpus": DATASET_REPO},
+            "engines": list(ENGINES),
+            "torch_error": TORCH_ERROR,
             "config": {"length_scale": speed.value, "noise_scale": 0.0,
                        "metric": "speech-only duration, -32 dB relative gate",
                        "excluded": "rows containing digits"},
-            "summary": {"n": len(_r), "median_ratio": float(np.median(_r)),
-                        "mean_ratio": float(_r.mean()),
-                        "p5": float(np.percentile(_r, 5)),
-                        "p95": float(np.percentile(_r, 95)),
-                        "frac_model_faster": float((_r < 1).mean())},
+            "summary": {
+                name: {
+                    "n": len(measured),
+                    "median_ratio": float(np.median([x[f"{name}_ratio"] for x in measured])),
+                    "mean_ratio": float(np.mean([x[f"{name}_ratio"] for x in measured])),
+                    "frac_faster_than_human":
+                        float(np.mean([x[f"{name}_ratio"] < 1 for x in measured])),
+                } for name in ENGINES
+            },
             "by_length": by_len,
+            "onnx_vs_torch_fidelity": fidelity,
             "isolated_word_peaks": peaks_by_word,
             "per_clip": measured,
         }
@@ -728,18 +728,18 @@ def _(RESULTS, by_len, datetime, json, measured, np, os, peaks_by_word, save, sp
     return
 
 
-# ── Cell 23: limits ──────────────────────────────────────────────────────────
+# ── Cell 28: limits ──────────────────────────────────────────────────────────
 @app.cell
 def _(mo):
     mo.md(
         """
         ## What this bench cannot tell you
 
-        - **No ground truth for single words.** The corpus has none, so section 5 is
+        - **No ground truth for single words.** The corpus has none, so section 7 is
           subjective. The right `lengthScale` for an isolated word is extrapolated from the
           trend, not measured.
         - **Speaker mapping is assumed.** `female → sid 0`, `female2 → sid 1` is not
-          documented by C4IR.
+          documented by C4IR, which also does not document `female2`/`male2` at all.
         - **Duration ratio is not articulation.** A clip can match the human's length and
           still swallow a syllable. Only listening catches that.
         - **No per-token durations.** The exported ONNX emits only `y`, so exact word
