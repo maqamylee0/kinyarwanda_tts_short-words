@@ -167,9 +167,20 @@ articulation, it raises the level. For single-word use, Female 2 is the better d
 - **No fix has been tested.** The proposed remedy — mining utterance-final words by forced
   alignment and fine-tuning on them — remains a proposal.
 
-**Immediate practical guidance, unchanged and now better supported:** for single-word
-synthesis use `lengthScale ≈ 1.4`, prefer Female 2, and keep `noise_scale 0` so a learner
-hears the same word identically each time.
+**Immediate practical guidance, now validated by ear:** synthesize single words with
+`exploration/kinya_word.py`, which crops the word out of a carrier phrase using the model's
+alignment. Defaults are `length_scale=1.5` and Female 1 — the configuration a Kinyarwanda
+listener preferred across every word tested. Keep `noise_scale=0` so a learner hears the
+same word identically each time.
+
+The two settings do different jobs: **cropping** fixes which phonemes get time, which is
+what makes the word intelligible; **`lengthScale`** supplies the isolation lengthening a
+human applies to a word said alone. Cropping alone leaves the word correct but at
+conversational pace (0.123 s/syllable against a human's 0.223); 1.5 reaches 0.173 and 1.9
+reaches 0.213.
+
+Do **not** reach for `lengthScale` alone on a bare word. It cannot repair a skewed
+allocation — it just makes an unintelligible word longer.
 
 ---
 

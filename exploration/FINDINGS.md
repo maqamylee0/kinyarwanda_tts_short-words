@@ -5,6 +5,48 @@ and traps are in `METHODOLOGY.md`; raw output in `results/`.
 
 ---
 
+## 2026-10-08 — the two knobs are complementary, and the preferred setting nearly matches a human
+
+**Method.** Speech-only seconds per syllable (the same −32 dB gate the human reference
+figures use), 12 words, Female 1, cropped from the carrier at several `lengthScale` values.
+
+**Result.**
+
+| rendering | s/syllable | vs the human isolated-word rate |
+|---|---|---|
+| bare | 0.126 | 0.56× |
+| cropped @1.0 | 0.123 | 0.55× |
+| **cropped @1.5** — preferred by the listener | **0.173** | **0.78×** |
+| cropped @1.9 | 0.213 | 0.95× |
+| *human, inside a sentence* | *0.129* | — |
+| *human, isolated word* | *0.223* | 1.00× |
+
+**Reading.** The two fixes do different jobs and both are needed.
+
+- **Cropping fixes *which* phonemes get time** — evenness 1.00 instead of 2.0–3.2. That is
+  what makes the word intelligible.
+- **It does not fix pacing.** A word cut from a sentence carries sentence pace: 0.123
+  s/syllable, within 5% of the actress's own sentence-internal 0.129. Cropping alone leaves
+  the word correct but spoken at conversational speed.
+- **`lengthScale` supplies the isolation lengthening** a human applies when saying a word
+  alone. At 1.5 the model reaches 0.173 s/syllable, 78% of the human isolated rate; at 1.9
+  it reaches 0.213, within 5% of it.
+
+A Kinyarwanda listener independently preferred 1.5 across every word tested, before seeing
+any of these numbers. That preference lands between sentence pace and full isolation pace,
+closer to the latter.
+
+**This also resolves the earlier confusion about `lengthScale`.** It was never useless — it
+was being asked to do the wrong job. It cannot repair a skewed allocation, which is what
+made bare words unintelligible; it is exactly the right tool for pacing once the allocation
+is fixed.
+
+**Defaults changed.** `kinya_word.py` now defaults to `length_scale=1.5` and `sid=0`, the
+configuration that was actually validated by ear.
+
+**Open.** Whether 1.9 is better than 1.5, or begins to drag, is unresolved — both are in
+`results/listen_fruits/listen.html`.
+
 ## 2026-10-08 — seven more words: the skew is the norm, and a spelling trap
 
 **Method.** `kinya_word.py` on `umuembe, avoka, igitoki, inanasi, ipapayi, pome, indimu`,

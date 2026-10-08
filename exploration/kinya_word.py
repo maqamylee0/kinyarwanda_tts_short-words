@@ -15,7 +15,13 @@ syllable is swallowed. A native speaker hears `icunga` as something closer to *i
 
 What does work is to say the word inside a carrier phrase, where the allocation is even
 (final/median 1.15 against 2.31 isolated), and then cut the word back out using the model's
-own alignment. The cut is frame-exact, not energy-based: C4IR's checkpoint returns the
+own alignment.
+
+Cropping fixes *which* phonemes get time, but a word cut from a sentence carries sentence
+pace: 0.123 s/syllable, against 0.223 for a human saying a word on its own. So the two
+knobs are complementary — crop for intelligibility, `length_scale` for isolation pacing.
+A Kinyarwanda listener preferred `length_scale=1.5` (0.173 s/syllable) across every word
+tested, which is why that is the default; 1.9 (0.213) lands closest to the human rate. The cut is frame-exact, not energy-based: C4IR's checkpoint returns the
 attention path from `infer()`, and the per-token frame counts multiply by the 256-sample hop
 to give sample boundaries. Verified against the waveform length on every call.
 
@@ -164,10 +170,15 @@ def main() -> int:
     ap.add_argument("words", nargs="+")
     ap.add_argument("-o", "--out", type=Path, help="output file (single word only)")
     ap.add_argument("--out-dir", type=Path, default=Path("."))
-    ap.add_argument("--sid", type=int, default=1,
-                    help="0=Female 1, 1=Female 2 (default; ~3x louder on isolated "
-                         "words), 2=Male")
-    ap.add_argument("--length-scale", type=float, default=1.0)
+    ap.add_argument("--sid", type=int, default=0,
+                    help="0=Female 1 (default; the voice the listening tests used), "
+                         "1=Female 2, 2=Male. Output is peak-normalised, so Female 1 "
+                         "being quieter in raw terms does not matter for written files.")
+    ap.add_argument("--length-scale", type=float, default=1.5,
+                    help="1.5 by default: cropping alone restores the word to sentence "
+                         "pace (0.123 s/syllable), and a Kinyarwanda listener preferred "
+                         "1.5 (0.173) across every word tested. 1.9 (0.213) matches the "
+                         "measured human isolated-word rate of 0.223 most closely.")
     ap.add_argument("--also-bare", action="store_true",
                     help="write the broken direct rendering alongside, for comparison")
     ap.add_argument("--deepkin", type=Path,
