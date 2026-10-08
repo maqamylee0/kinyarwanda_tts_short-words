@@ -5,6 +5,41 @@ and traps are in `METHODOLOGY.md`; raw output in `results/`.
 
 ---
 
+## 2026-10-08 — fp16 build: half the size, and the durations survive it
+
+**Why it needed checking.** Cropping is `frames x 256 = samples`. `durations` is an integer
+frame count carried in a float, so a single frame drifting in half precision would cut the
+word in the wrong place. Size alone is not the question.
+
+**Method.** ONNX Runtime's own fp16 converter with `keep_io_types=True` (so inputs and
+outputs stay float32 and the file is a drop-in swap), applied to the new fp32 export. 12
+words, carrier-cropped at `lengthScale 1.5`.
+
+**Result.**
+
+| | fp32 | fp16 |
+|---|---|---|
+| size | 141.8 MB | **72.1 MB** (0.51x) |
+| weights | 415 FLOAT tensors | 415 FLOAT16 tensors |
+| graph inputs/outputs | float32 | float32 (unchanged) |
+
+- **Predicted durations are identical integers on all 12 words.** Frame counts 168–221,
+  `frames x 256 == samples` holds in both. The cropping arithmetic is unaffected.
+- Waveform correlation against fp32: **0.9989 – 0.99998**, worst case `inka`; max absolute
+  difference 5.1e-03; identical sample counts on every word.
+
+**Reading.** fp16 is safe for this use and halves the asset. The earlier export report
+measured 0.99914 correlation for the fp16 build of the durations-less model, so this is
+consistent with it.
+
+Audio is in `results/listen_onnx/listen.html` as a blue row under each word's preferred
+rendering, so fp32 and fp16 can be compared back to back. Whether the difference is audible
+is for the ear, not the correlation coefficient.
+
+**Note.** `onnxconverter-common`'s converter is not usable here — it produces a
+type-inconsistent graph on this dynamo-exported model that ORT refuses to load. The
+notebook already documents this and uses ORT's converter instead.
+
 ## 2026-10-08 — re-exported the ONNX with the alignment, so the fix can run without torch
 
 **Why.** The single-word remedy needs per-token durations. The shipped ONNX emits only `y`,
