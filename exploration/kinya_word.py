@@ -48,6 +48,7 @@ import numpy as np
 
 SR, HOP = 24000, 256
 CARRIER = "Iri jambo ni {}."          # target lands last, before a full stop
+LEAD_TOKENS = 2                       # see `say()`: recovers the word-initial vowel onset
 TORCH_SEED = 1234
 
 
@@ -105,13 +106,23 @@ class _WordSynthBase:
         return spaces[-2] + 1, spaces[-1]
 
     def say(self, word: str, sid: int = 0, length_scale: float = 1.5,
-            bare: bool = False) -> np.ndarray:
+            bare: bool = False, lead: int = LEAD_TOKENS) -> np.ndarray:
         """Carrier-synthesize `word` and cut it back out. `bare=True` gives the
-        unusable direct rendering, for comparison."""
+        unusable direct rendering, for comparison.
+
+        `lead` extends the cut backwards by that many token slots. It is not cosmetic:
+        the alignment assigns a token its frames, but the *acoustic* onset of a
+        word-initial vowel is realised earlier, in the frames belonging to the preceding
+        space. Measured over the carrier, the eight frames before the span boundary carry
+        1.8x to 13x the energy of the eight after it. Cutting exactly on the boundary
+        therefore clips the vowel attack, and a Kinyarwanda listener hears `avoka` as
+        *voka*. Two slots take the blank and the space -- the transition -- without
+        reaching the previous word's final vowel, which sits at slot three."""
         if bare:
             return self._infer(word, sid, length_scale)[2]
         syms, dur, wav = self._infer(CARRIER.format(word), sid, length_scale)
         lo, hi = self._word_span(syms)
+        lo = max(0, lo - lead)
         edges = np.concatenate([[0], np.cumsum(dur)]).astype(np.int64) * HOP
         return wav[edges[lo]:edges[hi]]
 
