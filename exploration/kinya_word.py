@@ -48,7 +48,11 @@ import numpy as np
 
 SR, HOP = 24000, 256
 CARRIER = "Iri jambo ni {}."          # target lands last, before a full stop
-LEAD_TOKENS = 2                       # see `say()`: recovers the word-initial vowel onset
+# How many interspersed token slots to take before the word. The right number depends on
+# the word's first sound, because the frames just before the boundary hold different things
+# in the two cases — see `lead_slots_for()`.
+LEAD_VOWEL_INITIAL = 2
+LEAD_CONSONANT_INITIAL = 0
 TORCH_SEED = 1234
 
 
@@ -97,6 +101,30 @@ class _WordSynthBase:
             raise RuntimeError("alignment does not account for the waveform; "
                                "cropping would not be exact")
 
+    def lead_slots_for(self, word: str) -> int:
+        """How far back to start the cut, decided by the word's first phoneme.
+
+        The slot before the word is the carrier's *space*, and acoustically it holds
+        different things depending on what follows:
+
+        - **vowel-initial** (`avoka`, `icunga`): it holds the word's own vowel onset,
+          which coarticulation places ahead of the token boundary. Cutting on the
+          boundary shears the attack off and `avoka` is heard as *voka*, so take 2 slots.
+        - **consonant-initial** (`pome`): a stop has its own clear onset, nothing bleeds
+          backwards, and those frames hold the *tail of the carrier's final vowel*
+          instead. Taking them makes `pome` sound like *ipome*, so take none.
+
+        Both confirmed by a Kinyarwanda listener. Most Kinyarwanda nouns carry a vowel
+        prefix, which is why the consonant case only showed up on a loanword.
+        """
+        ids = self._to_seq(word, norm=True)
+        for i in ids:
+            sym = self._symbols[i]
+            if sym and sym.strip():
+                return (LEAD_VOWEL_INITIAL if sym[0] in self._vowels
+                        else LEAD_CONSONANT_INITIAL)
+        return LEAD_VOWEL_INITIAL
+
     def _word_span(self, syms):
         """Normalisation spaces the punctuation ("iri jambo ni icunga ."), so the target
         word lies between the LAST TWO spaces, not after the last one."""
@@ -106,7 +134,7 @@ class _WordSynthBase:
         return spaces[-2] + 1, spaces[-1]
 
     def say(self, word: str, sid: int = 0, length_scale: float = 1.5,
-            bare: bool = False, lead: int = LEAD_TOKENS) -> np.ndarray:
+            bare: bool = False, lead: int | None = None) -> np.ndarray:
         """Carrier-synthesize `word` and cut it back out. `bare=True` gives the
         unusable direct rendering, for comparison.
 
@@ -120,6 +148,8 @@ class _WordSynthBase:
         reaching the previous word's final vowel, which sits at slot three."""
         if bare:
             return self._infer(word, sid, length_scale)[2]
+        if lead is None:
+            lead = self.lead_slots_for(word)
         syms, dur, wav = self._infer(CARRIER.format(word), sid, length_scale)
         lo, hi = self._word_span(syms)
         lo = max(0, lo - lead)
@@ -154,6 +184,7 @@ class KinyaWordOnnx(_WordSynthBase):
 
         self._to_seq = text_to_sequence
         self._symbols = tts_symbols
+        self._vowels = set("aeiou")
         self._sess = ort.InferenceSession(str(onnx_path),
                                           providers=["CPUExecutionProvider"])
         names = [o.name for o in self._sess.get_outputs()]
@@ -194,6 +225,7 @@ class KinyaWordSynth(_WordSynthBase):
         self._torch = torch
         self._to_seq = text_to_sequence
         self._symbols = tts_symbols
+        self._vowels = set("aeiou")
         ckpt = hf_hub_download(repo_id=repo, filename=filename)
         tts = FlexKinyaTTS.from_pretrained(torch.device("cpu"), ckpt)
         tts.eval()

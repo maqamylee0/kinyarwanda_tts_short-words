@@ -231,14 +231,29 @@ preceding space. Measured: the eight frames before the boundary carry **1.8× to
 energy of the eight after it.
 
 Cut exactly on the boundary and you shear off the attack. A Kinyarwanda speaker hears
-**`avoka` as *voka***. The fix is two token slots of lead-in:
+**`avoka` as *voka***.
+
+But the right amount of lead-in **depends on the word's first sound**, because that same
+space holds different things:
+
+| first phoneme | the space holds | lead |
+|---|---|---|
+| vowel — `avoka`, `icunga` | the word's own vowel onset | **2 slots** |
+| consonant — `pome` | the tail of the carrier's final vowel | **0** |
+
+Take two slots on a consonant-initial word and `pome` becomes *ipome*. Take none on a
+vowel-initial one and `avoka` becomes *voka*. Both confirmed by ear. The engine decides per
+word from the first symbol, using the vocabulary's own vowel set:
 
 ```dart
-final from = (2 * a - FlexAlignment.vowelOnsetLeadSlots).clamp(0, durations.length);
+final startsWithVowel = tokenizer.vowels.contains(firstSymbol[0]);
+leadSlots: startsWithVowel
+    ? FlexAlignment.vowelOnsetLeadSlots      // 2
+    : FlexAlignment.consonantLeadSlots,      // 0
 ```
 
-Two, not three: the third slot reaches the carrier's final vowel and the crop opens on an
-audible trace of it.
+Most Kinyarwanda nouns take a vowel prefix, so the consonant case is rarer — which is
+exactly why it is easy to ship without noticing.
 
 ### Pacing is a separate knob
 
