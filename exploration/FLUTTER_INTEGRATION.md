@@ -260,10 +260,17 @@ Half the size, and safe for this use — but the second part needed checking rat
 assuming.
 
 Cropping is `frames × 256 = samples`, and `durations` is an integer frame count carried in a
-float. One frame drifting in half precision would cut the word in the wrong place. Measured
-over 12 words: **the predicted durations come back as identical integers**, frame counts
-168–221, and the identity holds in both builds. Waveform correlation against fp32 is
-**0.9989–0.99998**.
+float, so a frame drifting in half precision would move the cut.
+
+Measured: fp16 durations match fp32 on **47 of 48 carrier renderings** and **76 of 80
+sentences**. Where they differ it is always by **one frame — 11 ms — on a single token**.
+That is well inside the margin the 2-slot lead-in already adds, so a crop survives it, and
+on a sentence it is inaudible.
+
+One consequence worth knowing if you benchmark this yourself: a one-frame drift shifts
+every sample after it, so a waveform correlation against fp32 can read as low as 0.66 on a
+clip that sounds identical. Compare durations and listen; do not judge fp16 by correlation
+alone. On clips where the frame counts do match, correlation is **0.9989–0.99998**.
 
 The graph's inputs and outputs stay float32 (`keep_io_types=True`), so fp16 is a drop-in
 swap needing no code change.

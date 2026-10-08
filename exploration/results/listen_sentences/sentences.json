@@ -1,0 +1,98 @@
+[
+ {
+  "key": "female2/2575",
+  "voice": "female2",
+  "cid": "2575",
+  "text": "Kwirinda no kuvura indwara y’Ubushita (Fowl pox)mu nkoko : Iyi ndwara nta muti igira.",
+  "words": 14,
+  "human_s": 5.5675,
+  "model_s": 4.090625,
+  "ratio": 0.734732824427481,
+  "fp16_corr": 0.6638036454723156,
+  "samples_eq": false
+ },
+ {
+  "key": "female/4185",
+  "voice": "female",
+  "cid": "4185",
+  "text": "Irinde indwara utera usimburanya imiti ikurikira irimo cuwivure (copper) urugero gitenge, komanda na funguran.",
+  "words": 14,
+  "human_s": 6.56625,
+  "model_s": 5.27,
+  "ratio": 0.802588996763754,
+  "fp16_corr": 0.999833592068219,
+  "samples_eq": true
+ },
+ {
+  "key": "female/4434",
+  "voice": "female",
+  "cid": "4434",
+  "text": "● Nyuma yo gusarura ubwa mbere, sarura mu byiciro (akenshi buri cyumweru), kandi ukomeze kwita ku ntoryi , uzuhira .",
+  "words": 20,
+  "human_s": 6.853125,
+  "model_s": 5.684375,
+  "ratio": 0.8294573643410853,
+  "fp16_corr": 0.9999609629864016,
+  "samples_eq": true
+ },
+ {
+  "key": "female2/3448",
+  "voice": "female2",
+  "cid": "3448",
+  "text": "Amababa y’imbere ni maremare, asa n’igohogo cyijya kweruruka cyangwe n’umuhondo wijimye kandi afite utudomo tujya kwirabura.",
+  "words": 16,
+  "human_s": 6.39625,
+  "model_s": 6.236875,
+  "ratio": 0.9750830564784053,
+  "fp16_corr": 0.9998121210438542,
+  "samples_eq": true
+ },
+ {
+  "key": "female2/803",
+  "voice": "female2",
+  "cid": "803",
+  "text": "Tera ibigori na kokombure hafi y’umurima w’imiteja bizakurura ibinyabwoya bibihugireho kuko bibikurura kurusha imiteja.",
+  "words": 14,
+  "human_s": 6.26875,
+  "model_s": 6.18375,
+  "ratio": 0.9864406779661017,
+  "fp16_corr": 0.9996961012340664,
+  "samples_eq": true
+ },
+ {
+  "key": "female2/3712",
+  "voice": "female2",
+  "cid": "3712",
+  "text": "Imiti ikoreshwa mu kurwanya uburima bw’umuceri ni nayo ikoreshwa mu kurwanya indwara yo kubabuka k’umuceri.",
+  "words": 15,
+  "human_s": 4.7175,
+  "model_s": 5.2275,
+  "ratio": 1.1081081081081081,
+  "fp16_corr": 0.9996355377794689,
+  "samples_eq": true
+ },
+ {
+  "key": "female2/3722",
+  "voice": "female2",
+  "cid": "3722",
+  "text": "Ubushakashatsi bwerekanye ko indwara y’Ikivejuru iterwa n’udukoko turuma kumuceli ufite iyo ndwara hanyuma tukaza no kuruma ku muceli utaragerwaho n’ubwandu.",
+  "words": 20,
+  "human_s": 7.086875,
+  "model_s": 7.894375,
+  "ratio": 1.1139430284857572,
+  "fp16_corr": 0.9997949426706624,
+  "samples_eq": true
+ },
+ {
+  "key": "female/4361",
+  "voice": "female",
+  "cid": "4361",
+  "text": "Uko barwanya iyo indwara: umuhinzi atera amoko y’ibireti yihanganira iyo ndwara, guhinga neza bagirira isuku igihingwa, kubisikanya ibireti n’ikindi gihingwa (ibirayi); gutera ingemwe neza ahantu h’ubutaka buhitisha amazi.",
+  "words": 28,
+  "human_s": 12.13375,
+  "model_s": 10.90125,
+  "ratio": 0.8984238178633975,
+  "fp16_corr": 0.999871879459024,
+  "samples_eq": true
+ }
+]

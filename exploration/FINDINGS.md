@@ -23,8 +23,17 @@ words, carrier-cropped at `lengthScale 1.5`.
 | weights | 415 FLOAT tensors | 415 FLOAT16 tensors |
 | graph inputs/outputs | float32 | float32 (unchanged) |
 
-- **Predicted durations are identical integers on all 12 words.** Frame counts 168–221,
-  `frames x 256 == samples` holds in both. The cropping arithmetic is unaffected.
+- **Predicted durations matched on all 12 words** (frame counts 168–221), and
+  `frames x 256 == samples` holds in both builds.
+
+  **Corrected 2026-10-08, later the same day:** that was 12 short carrier phrases and does
+  not generalise. Measured over a wider set, fp16 durations drift on **4 of 80 sentences**
+  and **1 of 48 carrier renderings** (`umuembe` at `lengthScale 1.9`). Every drift observed
+  was exactly **one frame — 11 ms** — on a single token. Implications: on a sentence it is
+  inaudible, but it shifts everything after that token, which is why one clip shows a
+  waveform correlation of 0.66 while sounding identical. For cropping, an 11 ms shift is
+  well inside the margin the 2-slot lead-in already adds, so the cut survives it. fp16 is
+  still safe for this use — but "identical" was too strong.
 - Waveform correlation against fp32: **0.9989 – 0.99998**, worst case `inka`; max absolute
   difference 5.1e-03; identical sample counts on every word.
 
