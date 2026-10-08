@@ -5,6 +5,50 @@ and traps are in `METHODOLOGY.md`; raw output in `results/`.
 
 ---
 
+## 2026-10-08 — re-exported the ONNX with the alignment, so the fix can run without torch
+
+**Why.** The single-word remedy needs per-token durations. The shipped ONNX emits only `y`,
+so the fix ran only through the 1.11 GB PyTorch checkpoint — unusable on device.
+
+**What was already there.** The export notebook's wrapper already returned
+`(o, durations)` with `output_names=["y","durations"]`. The shipped artifact simply predated
+that edit (ONNX exported 10:48, notebook modified 13:16, same day). Three real defects
+remained, all fixed:
+
+1. `onnx_run` was called in step 9b but defined nowhere — that cell would have raised
+   `NameError`.
+2. Step 9 never checked that the `durations` output existed or was usable.
+3. The output path and the crop-sample path were hardcoded to `/content`, so the notebook
+   only worked on Colab even though `WORKDIR` already adapted.
+
+**Two failures found by running it, not by reading it.**
+
+- `torch._check(...)` was given a Tensor condition on the audio path, which torch 2.x
+  rejects (`cond must be a bool`). Three patch cells did this. Now routed through one
+  `onnx_check()` helper that picks `_check` or `_check_tensor_all`.
+- **The legacy tracer silently baked the audio length in as a constant.** The graph
+  exported cleanly and passed `onnx.checker`, but 8 of 9 validation cases returned an
+  identical 84,992-sample waveform — the dummy's length. This is exactly the failure step 9
+  exists to catch, and it caught it. Switching to `dynamo=True` with an explicit
+  `dynamic_shapes` spec fixes it; all 9 cases then match PyTorch to ~1e-5.
+
+**Result.** `exploration/models/kinya_flex_tts_durations.onnx`, 141.8 MB, opset 18,
+self-contained:
+
+| check | result |
+|---|---|
+| outputs | `y [1,1,256*u0]`, `durations [1,n_tokens]` |
+| matches PyTorch | 9/9 cases, max abs diff ~1e-5, lengths exact |
+| `durations x 256 == samples` | holds |
+| ONNX-only crop vs the torch crop | identical sample count, max diff 9.7e-07, **corr 1.00000000** |
+
+So the single-word fix now runs from the ONNX alone. That retires the last engineering
+blocker to shipping it on device.
+
+**Not yet done.** The new ONNX is not on the Hub — `emmilly/kinya-flex-tts-onnx` still holds
+the durations-less build, so the bench and the app still fetch the old one. Uploading it is
+a deliberate step, and it would change what the bench loads.
+
 ## 2026-10-08 — the two knobs are complementary, and the preferred setting nearly matches a human
 
 **Method.** Speech-only seconds per syllable (the same −32 dB gate the human reference

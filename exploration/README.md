@@ -19,6 +19,7 @@ of the recordings' quality.** Everything here is an attempt to support or break 
 | `notebooks/01_rushing_bench.py` | marimo: human vs model on identical text |
 | `kinya_word.py` | the remedy: intelligible single-word synthesis via carrier + alignment crop |
 | `results/` | machine-readable output, one JSON per run |
+| `models/` | exported weights — **not** in git, 140 MB is over GitHub's limit |
 
 Shared with the rest of the repo, not duplicated here:
 

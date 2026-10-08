@@ -21,3 +21,9 @@
 # Python bytecode, anywhere
 __pycache__/
 *.py[cod]
+
+# Exported model weights live in exploration/models/ but are never committed:
+# 140 MB is over GitHub's 100 MB per-file limit. Publish them to the Hub instead
+# (exploration/upload_model_to_hf.py).
+/exploration/models/*.onnx
+/exploration/models/*.onnx.data

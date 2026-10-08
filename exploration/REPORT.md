@@ -209,11 +209,11 @@ Claims this run supports directly:
 
 **The open items are now engineering, not science:**
 
-- **The ONNX cannot do this.** It emits only `y`, so the fix is unavailable on-device.
-  Shipping it in the Flutter app requires re-exporting with the attention as a second
-  output. C4IR's export notebook already computes the alignment internally (step 9b), so
-  this is a bounded change — and it is now a justified one rather than a speculative
-  nicety.
+- ~~**The ONNX cannot do this.**~~ **Done.** `exploration/models/kinya_flex_tts_durations.onnx`
+  (141.8 MB, opset 18) exports `durations` alongside `y`, matches PyTorch on all 9
+  validation cases, and reproduces the torch crop sample-for-sample (corr 1.00000000). The
+  fix now runs from ONNX alone. **Remaining:** the Hub copy is still the old build, so the
+  bench and the app fetch a durations-less model until it is uploaded.
 - **Not every word needs it.** `inka` has an even bare profile already; cropping gives a
   very short 0.17 s clip. `evenness()` tells you which words are affected.
 - **Scope untested.** Confirmed on `icunga` and `umuneke`. How broadly the remedy holds,
