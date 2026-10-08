@@ -153,10 +153,13 @@ articulation, it raises the level. For single-word use, Female 2 is the better d
 
 **Open:**
 
-- **Articulation is unassessed.** Every measurement here is duration and level. Whether
-  C4IR's `icunga` is *mispronounced* — swallowed first syllable, clipped final vowel, wrong
-  tone — cannot be settled by any of this. It needs a native speaker listening to section 7.
-  This is the single largest remaining gap, and it is the one a reviewer will ask about.
+- **Articulation: partly answered, see the 2026-10-08 entry in `FINDINGS.md`.** A native
+  speaker reports `icunga` rendered closer to *ihuba* — swallowed syllables, not just a fast
+  word. The mechanism is now measured: on isolated words the duration predictor crushes a
+  medial phoneme to the 32 ms floor while stretching the final vowel to ~2.3x the median.
+  `lengthScale` cannot fix it (it scales uniformly); cropping from a carrier phrase using
+  the model's alignment does, giving an even profile. **Still open:** whether the cropped
+  audio sounds correct to a Kinyarwanda speaker. Audio is in `results/listen_icunga/`.
 - **The isolated-word human reference is thin.** The 0.223 s/syllable figure is n=6, from a
   different corpus and a different speaker. The bit-identity result is unshakable; this
   comparison target is not.
@@ -187,6 +190,11 @@ Claims this run supports directly:
 4. Three documented data-quality defects in a published CC-BY-4.0 corpus: `Err:508` rows,
    truncated references, and at least one silent recording paired with a full transcript.
 
-Claim **not** yet supported: that the model mispronounces short words. We have shown it
-rushes them and renders them quietly. Mispronunciation is a different assertion and needs
-the listening pass.
+5. A mechanism for the segmental failure on isolated words: the duration predictor
+   allocates time unevenly, crushing medial phonemes to a 32 ms floor while stretching the
+   final vowel (final/median 2.31 isolated against 1.15 in a carrier). `lengthScale` cannot
+   correct it; alignment-based cropping from a carrier can.
+
+Claim **not** yet supported: that the carrier-cropped output is *correct* Kinyarwanda. The
+allocation is demonstrably even, but only a native speaker can confirm the word is now
+intelligible.

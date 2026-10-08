@@ -5,6 +5,72 @@ and traps are in `METHODOLOGY.md`; raw output in `results/`.
 
 ---
 
+## 2026-10-08 — the swallowed syllables: a distorted duration allocation, not a uniform rush
+
+**Prompted by** a native-speaker report that the model does not merely rush `icunga` but
+says something closer to *ihuba* — swallowed syllables, wrong consonants.
+
+**Method.** C4IR's checkpoint exposes the alignment (`infer()` returns `attn`), so
+per-phoneme durations are directly measurable. Validated first: predicted frames account
+for the waveform exactly (frames x 256 = samples). `noise_scale=0`, speaker 0.
+
+**Result 1 — the tokenizer is not at fault.** `icunga` tokenizes to `i c u ng a`, identical
+alone and inside a sentence. The model receives the correct symbols and renders them wrongly.
+
+**Result 2 — the allocation is lopsided, and that is the mechanism.** Milliseconds per
+phoneme for `icunga`:
+
+| phoneme | alone | in a sentence | alone @ lengthScale 1.8 |
+|---|---|---|---|
+| i | 74.7 | — | 138.7 |
+| c | 74.7 | 42.7 | 138.7 |
+| **u** | **32.0** | 42.7 | 64.0 |
+| ng | 53.3 | 42.7 | 96.0 |
+| **a** | **213.3** | 42.7 | 373.3 |
+
+In a sentence every phoneme gets ~43 ms. Alone, the medial vowel /u/ is crushed to 32 ms —
+the 3-frame floor — while the final /a/ is stretched to 213 ms. A 32 ms vowel between a
+75 ms /c/ and a 53 ms /ng/ is perceptually swallowed, which is what the listener reports.
+
+**This is general, not specific to `icunga`.** Final-phoneme duration divided by the median
+phoneme duration, across 10 isolated words:
+
+| condition | mean final/median | range |
+|---|---|---|
+| isolated | **2.31** | 1.00 – 3.20 |
+| same word, last in a carrier phrase | **1.15** | 1.00 – 2.00 |
+
+Nine of ten isolated words hit the 32 ms floor on some medial segment.
+
+**Result 3 — `lengthScale` cannot fix this.** It scales every phoneme uniformly, so the
+imbalance survives: `icunga` goes from 2.86 at `lengthScale 1.0` to 2.64 at 1.5. The word
+gets longer; the swallowed vowel stays proportionally swallowed.
+
+**This corrects earlier guidance in this log.** The recommendation of `lengthScale` 1.4–1.8
+for isolated words addresses gross duration only. It does not address the swallowed
+syllable, and should not be presented as a fix for intelligibility.
+
+**Result 4 — the carrier phrase plus the alignment does fix the allocation.** Synthesizing
+`Iri jambo ni <word>.` and cutting the target span using the model's own `attn` gives an
+even profile:
+
+| word | bare, phones (ms) | final/median | cropped, phones (ms) | final/median |
+|---|---|---|---|---|
+| icunga | 75, 75, 32, 53, 213 | 2.86 | 21, 43, 43, 43, 43 | **1.00** |
+| umuneke | 53, 64, 32, 32, 32, 75, 171 | 3.20 | 21, 32, 21, 43, 32, 21, 32 | **1.00** |
+
+The cut is exact, not energy-based: cumulative frames x 256 give the sample boundaries, and
+the durations are verified to account for the waveform.
+
+**Status.** The timing explanation is measured and solid. Whether the cropped audio actually
+*sounds* correct to a Kinyarwanda speaker is **not yet confirmed** — audio for that judgement
+is in `results/listen_icunga/` (`*_A_bare_*` against `*_B_cropped_*`). Until someone listens,
+the claim is "the allocation is fixed", not "the word is fixed".
+
+**Note.** This partly retires the "no per-token durations" limitation: the ONNX export still
+emits only `y`, but the torch engine exposes the alignment, so exact cropping is available
+today without re-exporting.
+
 ## 2026-10-08 — both engines, full run: the export is identical on every clip
 
 **Method.** First run with `torch_error: null` — our ONNX and C4IR's checkpoint both loaded
