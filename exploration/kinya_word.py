@@ -79,7 +79,94 @@ def _install_training_only_stubs() -> None:
              save=never("torchaudio.save"))
 
 
-class KinyaWordSynth:
+class _WordSynthBase:
+    """Shared carrier-and-crop logic. Backends supply `_infer`."""
+
+    def _ids(self, text):
+        raw = self._to_seq(text, norm=True)
+        out = [0] * (len(raw) * 2 + 1)      # intersperse blanks, as the model expects
+        out[1::2] = raw
+        return out
+
+    def _infer(self, text, sid, length_scale):
+        raise NotImplementedError
+
+    def _check_alignment(self, dur, wav):
+        if int(round(float(np.sum(dur)))) * HOP != len(wav):
+            raise RuntimeError("alignment does not account for the waveform; "
+                               "cropping would not be exact")
+
+    def _word_span(self, syms):
+        """Normalisation spaces the punctuation ("iri jambo ni icunga ."), so the target
+        word lies between the LAST TWO spaces, not after the last one."""
+        spaces = [i for i, s in enumerate(syms) if s == " "]
+        if len(spaces) < 2:
+            raise RuntimeError("unexpected carrier tokenization")
+        return spaces[-2] + 1, spaces[-1]
+
+    def say(self, word: str, sid: int = 0, length_scale: float = 1.5,
+            bare: bool = False) -> np.ndarray:
+        """Carrier-synthesize `word` and cut it back out. `bare=True` gives the
+        unusable direct rendering, for comparison."""
+        if bare:
+            return self._infer(word, sid, length_scale)[2]
+        syms, dur, wav = self._infer(CARRIER.format(word), sid, length_scale)
+        lo, hi = self._word_span(syms)
+        edges = np.concatenate([[0], np.cumsum(dur)]).astype(np.int64) * HOP
+        return wav[edges[lo]:edges[hi]]
+
+    def evenness(self, word: str, sid: int = 0, length_scale: float = 1.5,
+                 bare: bool = False) -> float:
+        """Final-phoneme duration / median phoneme duration. 1.0 is even; the bare
+        rendering of a short word typically lands above 2."""
+        text = word if bare else CARRIER.format(word)
+        syms, dur, _ = self._infer(text, sid, length_scale)
+        if not bare:
+            lo, hi = self._word_span(syms)
+            syms, dur = syms[lo:hi], dur[lo:hi]
+        ms = [d for s, d in zip(syms, dur) if s != self._symbols[0] and s.strip()]
+        return float(ms[-1] / np.median(ms)) if ms else float("nan")
+
+
+class KinyaWordOnnx(_WordSynthBase):
+    """The shippable path: onnxruntime plus the pure-Python tokenizer, no torch.
+
+    Needs an ONNX exported with the alignment as a second output (`durations`). The
+    build that shipped first emits only `y` and will raise here, which is the point —
+    silently falling back would hide the thing this class exists to use."""
+
+    def __init__(self, deepkin_dir: Path, onnx_path):
+        if str(deepkin_dir) not in sys.path:
+            sys.path.insert(0, str(deepkin_dir))
+        import onnxruntime as ort
+        from deepkin.data.kinya_norm import text_to_sequence, tts_symbols
+
+        self._to_seq = text_to_sequence
+        self._symbols = tts_symbols
+        self._sess = ort.InferenceSession(str(onnx_path),
+                                          providers=["CPUExecutionProvider"])
+        names = [o.name for o in self._sess.get_outputs()]
+        if "durations" not in names:
+            raise RuntimeError(
+                f"{onnx_path} exposes {names}; this needs a 'durations' output. "
+                "Re-export with export_kinya_flex_tts_colab.ipynb.")
+
+    def _infer(self, text, sid, length_scale):
+        ids = self._ids(text)
+        y, dur = self._sess.run(["y", "durations"], {
+            "x": np.array([ids], dtype=np.int64),
+            "x_length": np.array([len(ids)], dtype=np.int64),
+            "sid": np.array([sid], dtype=np.int64),
+            "noise_scale": np.array([0.0], dtype=np.float32),
+            "length_scale": np.array([length_scale], dtype=np.float32),
+        })
+        wav = y.reshape(-1)
+        dur = dur[0]
+        self._check_alignment(dur, wav)
+        return [self._symbols[i] for i in ids], dur, wav
+
+
+class KinyaWordSynth(_WordSynthBase):
     """Loads C4IR's checkpoint once; `say()` returns intelligible isolated words."""
 
     def __init__(self, deepkin_dir: Path, repo="C4IR-RW/kinya-flex-tts",
@@ -101,12 +188,6 @@ class KinyaWordSynth:
         tts.eval()
         self._net = tts.flex_tts
 
-    def _ids(self, text):
-        raw = self._to_seq(text, norm=True)
-        out = [0] * (len(raw) * 2 + 1)      # intersperse blanks, as the model expects
-        out[1::2] = raw
-        return out
-
     def _infer(self, text, sid, length_scale):
         torch = self._torch
         ids = self._ids(text)
@@ -119,40 +200,8 @@ class KinyaWordSynth:
         a = attn.squeeze(0).squeeze(0)
         dur = (a.sum(dim=0) if a.shape[1] == len(ids) else a.sum(dim=1)).cpu().numpy()
         wav = o[0][0].cpu().float().numpy().reshape(-1)
-        syms = [self._symbols[i] for i in ids]
-        if int(round(dur.sum())) * HOP != len(wav):
-            raise RuntimeError("alignment does not account for the waveform; "
-                               "cropping would not be exact")
-        return syms, dur, wav
-
-    def say(self, word: str, sid: int = 0, length_scale: float = 1.0,
-            bare: bool = False) -> np.ndarray:
-        """Carrier-synthesize `word` and cut it back out. `bare=True` gives the
-        unusable direct rendering, for comparison."""
-        if bare:
-            return self._infer(word, sid, length_scale)[2]
-        syms, dur, wav = self._infer(CARRIER.format(word), sid, length_scale)
-        # Normalisation spaces the punctuation ("iri jambo ni icunga ."), so the target
-        # word lies between the LAST TWO spaces, not after the last one.
-        spaces = [i for i, s in enumerate(syms) if s == " "]
-        if len(spaces) < 2:
-            raise RuntimeError(f"unexpected carrier tokenization for {word!r}")
-        lo, hi = spaces[-2] + 1, spaces[-1]
-        edges = np.concatenate([[0], np.cumsum(dur)]).astype(np.int64) * HOP
-        return wav[edges[lo]:edges[hi]]
-
-    def evenness(self, word: str, sid: int = 0, length_scale: float = 1.0,
-                 bare: bool = False) -> float:
-        """Final-phoneme duration / median phoneme duration. 1.0 is even; the bare
-        rendering of a short word typically lands above 2."""
-        text = word if bare else CARRIER.format(word)
-        syms, dur, _ = self._infer(text, sid, length_scale)
-        if not bare:
-            spaces = [i for i, s in enumerate(syms) if s == " "]
-            lo, hi = spaces[-2] + 1, spaces[-1]
-            syms, dur = syms[lo:hi], dur[lo:hi]
-        ms = [d for s, d in zip(syms, dur) if s != self._symbols[0] and s.strip()]
-        return float(ms[-1] / np.median(ms)) if ms else float("nan")
+        self._check_alignment(dur, wav)
+        return [self._symbols[i] for i in ids], dur, wav
 
 
 def write_wav(path: Path, w: np.ndarray, peak: float = 0.85) -> None:
@@ -181,6 +230,9 @@ def main() -> int:
                          "measured human isolated-word rate of 0.223 most closely.")
     ap.add_argument("--also-bare", action="store_true",
                     help="write the broken direct rendering alongside, for comparison")
+    ap.add_argument("--onnx", type=Path,
+                    help="use an ONNX export with a 'durations' output instead of the "
+                         "1.11 GB torch checkpoint. This is the path that can ship.")
     ap.add_argument("--deepkin", type=Path,
                     default=Path(__file__).resolve().parent.parent / "vendor/ac-ai-models/DeepKIN-AgAI")
     a = ap.parse_args()
@@ -191,7 +243,9 @@ def main() -> int:
               f"{a.deepkin.parent}", file=sys.stderr)
         return 1
 
-    synth = KinyaWordSynth(a.deepkin)
+    synth = (KinyaWordOnnx(a.deepkin, a.onnx) if a.onnx
+             else KinyaWordSynth(a.deepkin))
+    print(f"backend: {'onnx ' + str(a.onnx) if a.onnx else 'torch checkpoint'}")
     a.out_dir.mkdir(parents=True, exist_ok=True)
     for word in a.words:
         w = synth.say(word, sid=a.sid, length_scale=a.length_scale)
