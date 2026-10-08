@@ -1,0 +1,2361 @@
+{
+ "run_utc": "20261008T085511Z",
+ "notebook": "exploration/notebooks/01_rushing_bench.py",
+ "sources": {
+  "onnx": "emmilly/kinya-flex-tts-onnx",
+  "torch": "C4IR-RW/kinya-flex-tts",
+  "corpus": "C4IR-RW/kinya-ag-tts"
+ },
+ "engines": [
+  "onnx",
+  "torch"
+ ],
+ "torch_error": null,
+ "config": {
+  "length_scale": 1.0,
+  "noise_scale": 0.0,
+  "metric": "speech-only duration, -32 dB relative gate",
+  "excluded": "rows containing digits"
+ },
+ "summary": {
+  "onnx": {
+   "n": 190,
+   "median_ratio": 0.9451100388372367,
+   "mean_ratio": 1.28648041414271,
+   "frac_faster_than_human": 0.7210526315789474
+  },
+  "torch": {
+   "n": 190,
+   "median_ratio": 0.9451100388372367,
+   "mean_ratio": 1.28648041414271,
+   "frac_faster_than_human": 0.7210526315789474
+  }
+ },
+ "by_length": [
+  {
+   "bucket": "1-2",
+   "n": 33,
+   "onnx": 0.875,
+   "onnx_implied_length_scale": 1.1428571428571428,
+   "torch": 0.875,
+   "torch_implied_length_scale": 1.1428571428571428
+  },
+  {
+   "bucket": "3",
+   "n": 43,
+   "onnx": 0.9320388349514562,
+   "onnx_implied_length_scale": 1.0729166666666667,
+   "torch": 0.9320388349514562,
+   "torch_implied_length_scale": 1.0729166666666667
+  },
+  {
+   "bucket": "4-6",
+   "n": 44,
+   "onnx": 0.9365862573099415,
+   "onnx_implied_length_scale": 1.0677073170731708,
+   "torch": 0.9365862573099415,
+   "torch_implied_length_scale": 1.0677073170731708
+  },
+  {
+   "bucket": "7-12",
+   "n": 41,
+   "onnx": 0.9597069597069597,
+   "onnx_implied_length_scale": 1.0419847328244274,
+   "torch": 0.9597069597069597,
+   "torch_implied_length_scale": 1.0419847328244274
+  },
+  {
+   "bucket": "13+",
+   "n": 29,
+   "onnx": 0.9864406779661017,
+   "onnx_implied_length_scale": 1.013745704467354,
+   "torch": 0.9864406779661017,
+   "torch_implied_length_scale": 1.013745704467354
+  }
+ ],
+ "onnx_vs_torch_fidelity": [
+  {
+   "cid": "401",
+   "words": 2,
+   "onnx_s": 0.9775,
+   "torch_s": 0.9775,
+   "samples_onnx": 35328,
+   "samples_torch": 35328,
+   "corr": 0.9999999999865088
+  },
+  {
+   "cid": "1741",
+   "words": 2,
+   "onnx_s": 0.541875,
+   "torch_s": 0.541875,
+   "samples_onnx": 24064,
+   "samples_torch": 24064,
+   "corr": 0.9999999999802571
+  },
+  {
+   "cid": "2679",
+   "words": 2,
+   "onnx_s": 0.8075,
+   "torch_s": 0.8075,
+   "samples_onnx": 30464,
+   "samples_torch": 30464,
+   "corr": 0.9999999999206043
+  },
+  {
+   "cid": "1383",
+   "words": 3,
+   "onnx_s": 1.200625,
+   "torch_s": 1.200625,
+   "samples_onnx": 39936,
+   "samples_torch": 39936,
+   "corr": 0.9999999996403507
+  },
+  {
+   "cid": "693",
+   "words": 3,
+   "onnx_s": 1.583125,
+   "torch_s": 1.583125,
+   "samples_onnx": 48640,
+   "samples_torch": 48640,
+   "corr": 0.9999999999435043
+  },
+  {
+   "cid": "3738",
+   "words": 3,
+   "onnx_s": 1.46625,
+   "torch_s": 1.46625,
+   "samples_onnx": 47872,
+   "samples_torch": 47872,
+   "corr": 0.999999999984528
+  },
+  {
+   "cid": "3927",
+   "words": 4,
+   "onnx_s": 0.95625,
+   "torch_s": 0.95625,
+   "samples_onnx": 33280,
+   "samples_torch": 33280,
+   "corr": 0.9999999999780956
+  },
+  {
+   "cid": "4371",
+   "words": 4,
+   "onnx_s": 1.33875,
+   "torch_s": 1.33875,
+   "samples_onnx": 43776,
+   "samples_torch": 43776,
+   "corr": 0.9999999998800877
+  },
+  {
+   "cid": "3303",
+   "words": 5,
+   "onnx_s": 1.3175,
+   "torch_s": 1.3175,
+   "samples_onnx": 49152,
+   "samples_torch": 49152,
+   "corr": 0.9999999999539622
+  },
+  {
+   "cid": "951",
+   "words": 12,
+   "onnx_s": 4.834375,
+   "torch_s": 4.834375,
+   "samples_onnx": 127232,
+   "samples_torch": 127232,
+   "corr": 0.9999999999897317
+  },
+  {
+   "cid": "4507",
+   "words": 11,
+   "onnx_s": 4.56875,
+   "torch_s": 4.56875,
+   "samples_onnx": 121088,
+   "samples_torch": 121088,
+   "corr": 0.9999999999622214
+  },
+  {
+   "cid": "2024",
+   "words": 10,
+   "onnx_s": 3.346875,
+   "torch_s": 3.346875,
+   "samples_onnx": 92928,
+   "samples_torch": 92928,
+   "corr": 0.9999999999447785
+  },
+  {
+   "cid": "1942",
+   "words": 14,
+   "onnx_s": 5.1,
+   "torch_s": 5.1,
+   "samples_onnx": 135168,
+   "samples_torch": 135168,
+   "corr": 0.999999999979815
+  },
+  {
+   "cid": "3390",
+   "words": 17,
+   "onnx_s": 6.895625,
+   "torch_s": 6.895625,
+   "samples_onnx": 176896,
+   "samples_torch": 176896,
+   "corr": 0.9999999999451825
+  },
+  {
+   "cid": "4434",
+   "words": 20,
+   "onnx_s": 5.684375,
+   "torch_s": 5.684375,
+   "samples_onnx": 147712,
+   "samples_torch": 147712,
+   "corr": 0.9999999999806289
+  }
+ ],
+ "short_word_timing": [
+  {
+   "word": "icunga",
+   "syllables": 3,
+   "onnx_s": 0.371875,
+   "onnx_s_per_syllable": 0.12395833333333334,
+   "onnx_peak": 0.04472022131085396,
+   "torch_s": 0.371875,
+   "torch_s_per_syllable": 0.12395833333333334,
+   "torch_peak": 0.04472021386027336
+  },
+  {
+   "word": "amazi",
+   "syllables": 3,
+   "onnx_s": 0.286875,
+   "onnx_s_per_syllable": 0.095625,
+   "onnx_peak": 0.13511474430561066,
+   "torch_s": 0.286875,
+   "torch_s_per_syllable": 0.095625,
+   "torch_peak": 0.13511432707309723
+  },
+  {
+   "word": "inka",
+   "syllables": 2,
+   "onnx_s": 0.201875,
+   "onnx_s_per_syllable": 0.1009375,
+   "onnx_peak": 0.05277260020375252,
+   "torch_s": 0.201875,
+   "torch_s_per_syllable": 0.1009375,
+   "torch_peak": 0.052772607654333115
+  },
+  {
+   "word": "umwana",
+   "syllables": 3,
+   "onnx_s": 0.456875,
+   "onnx_s_per_syllable": 0.15229166666666666,
+   "onnx_peak": 0.14970481395721436,
+   "torch_s": 0.456875,
+   "torch_s_per_syllable": 0.15229166666666666,
+   "torch_peak": 0.1497054249048233
+  },
+  {
+   "word": "ishuri",
+   "syllables": 3,
+   "onnx_s": 0.456875,
+   "onnx_s_per_syllable": 0.15229166666666666,
+   "onnx_peak": 0.18560007214546204,
+   "torch_s": 0.456875,
+   "torch_s_per_syllable": 0.15229166666666666,
+   "torch_peak": 0.18560028076171875
+  },
+  {
+   "word": "ibirayi",
+   "syllables": 4,
+   "onnx_s": 0.414375,
+   "onnx_s_per_syllable": 0.10359375,
+   "onnx_peak": 0.11127506196498871,
+   "torch_s": 0.414375,
+   "torch_s_per_syllable": 0.10359375,
+   "torch_peak": 0.11127493530511856
+  },
+  {
+   "word": "umuhinzi",
+   "syllables": 4,
+   "onnx_s": 0.65875,
+   "onnx_s_per_syllable": 0.1646875,
+   "onnx_peak": 0.11469121277332306,
+   "torch_s": 0.65875,
+   "torch_s_per_syllable": 0.1646875,
+   "torch_peak": 0.11469113081693649
+  },
+  {
+   "word": "ifumbire",
+   "syllables": 4,
+   "onnx_s": 0.541875,
+   "onnx_s_per_syllable": 0.13546875,
+   "onnx_peak": 0.07396327704191208,
+   "torch_s": 0.541875,
+   "torch_s_per_syllable": 0.13546875,
+   "torch_peak": 0.07396276295185089
+  },
+  {
+   "word": "umuneke",
+   "syllables": 4,
+   "onnx_s": 0.51,
+   "onnx_s_per_syllable": 0.1275,
+   "onnx_peak": 0.13169673085212708,
+   "torch_s": 0.51,
+   "torch_s_per_syllable": 0.1275,
+   "torch_peak": 0.13169677555561066
+  },
+  {
+   "word": "inanasi",
+   "syllables": 4,
+   "onnx_s": 0.648125,
+   "onnx_s_per_syllable": 0.16203125,
+   "onnx_peak": 0.2950400710105896,
+   "torch_s": 0.648125,
+   "torch_s_per_syllable": 0.16203125,
+   "torch_peak": 0.2950401306152344
+  }
+ ],
+ "onnx_vs_torch_fidelity_short_words": [
+  {
+   "word": "icunga",
+   "syllables": 3,
+   "onnx_s": 0.371875,
+   "torch_s": 0.371875,
+   "samples_onnx": 18944,
+   "samples_torch": 18944,
+   "corr": 0.9999999999487859
+  },
+  {
+   "word": "amazi",
+   "syllables": 3,
+   "onnx_s": 0.286875,
+   "torch_s": 0.286875,
+   "samples_onnx": 17408,
+   "samples_torch": 17408,
+   "corr": 0.9999999999158786
+  },
+  {
+   "word": "inka",
+   "syllables": 2,
+   "onnx_s": 0.201875,
+   "torch_s": 0.201875,
+   "samples_onnx": 13312,
+   "samples_torch": 13312,
+   "corr": 0.9999999999411383
+  },
+  {
+   "word": "umwana",
+   "syllables": 3,
+   "onnx_s": 0.456875,
+   "torch_s": 0.456875,
+   "samples_onnx": 20480,
+   "samples_torch": 20480,
+   "corr": 0.9999999996769704
+  },
+  {
+   "word": "ishuri",
+   "syllables": 3,
+   "onnx_s": 0.456875,
+   "torch_s": 0.456875,
+   "samples_onnx": 20224,
+   "samples_torch": 20224,
+   "corr": 0.9999999998832154
+  },
+  {
+   "word": "ibirayi",
+   "syllables": 4,
+   "onnx_s": 0.414375,
+   "torch_s": 0.414375,
+   "samples_onnx": 19712,
+   "samples_torch": 19712,
+   "corr": 0.9999999999857936
+  },
+  {
+   "word": "umuhinzi",
+   "syllables": 4,
+   "onnx_s": 0.65875,
+   "torch_s": 0.65875,
+   "samples_onnx": 24320,
+   "samples_torch": 24320,
+   "corr": 0.9999999995998305
+  },
+  {
+   "word": "ifumbire",
+   "syllables": 4,
+   "onnx_s": 0.541875,
+   "torch_s": 0.541875,
+   "samples_onnx": 21504,
+   "samples_torch": 21504,
+   "corr": 0.999999999915083
+  },
+  {
+   "word": "umuneke",
+   "syllables": 4,
+   "onnx_s": 0.51,
+   "torch_s": 0.51,
+   "samples_onnx": 21504,
+   "samples_torch": 21504,
+   "corr": 0.9999999999082989
+  },
+  {
+   "word": "inanasi",
+   "syllables": 4,
+   "onnx_s": 0.648125,
+   "torch_s": 0.648125,
+   "samples_onnx": 25344,
+   "samples_torch": 25344,
+   "corr": 0.9999999999681813
+  }
+ ],
+ "isolated_word_peaks": {
+  "icunga": [
+   0.04472022131085396,
+   0.35284358263015747,
+   0.27886447310447693
+  ],
+  "amazi": [
+   0.13511474430561066,
+   0.42756059765815735,
+   0.41458284854888916
+  ],
+  "inka": [
+   0.05277260020375252,
+   0.1552475541830063,
+   0.20758156478405
+  ],
+  "umwana": [
+   0.14970481395721436,
+   0.37667256593704224,
+   0.3650185763835907
+  ],
+  "ishuri": [
+   0.18560007214546204,
+   0.4233624041080475,
+   0.5653427243232727
+  ],
+  "ibirayi": [
+   0.11127506196498871,
+   0.361123263835907,
+   0.43491047620773315
+  ],
+  "umuhinzi": [
+   0.11469121277332306,
+   0.31496432423591614,
+   0.46247491240501404
+  ],
+  "ifumbire": [
+   0.07396327704191208,
+   0.37268364429473877,
+   0.5020484924316406
+  ],
+  "umuneke": [
+   0.13169673085212708,
+   0.37482303380966187,
+   0.5531439781188965
+  ],
+  "inanasi": [
+   0.2950400710105896,
+   0.615325927734375,
+   0.567596435546875
+  ]
+ },
+ "per_clip": [
+  {
+   "voice": "female",
+   "cid": "401",
+   "words": 2,
+   "human_s": 1.0625,
+   "onnx_s": 0.9775,
+   "onnx_ratio": 0.92,
+   "torch_s": 0.9775,
+   "torch_ratio": 0.92
+  },
+  {
+   "voice": "female",
+   "cid": "1741",
+   "words": 2,
+   "human_s": 0.924375,
+   "onnx_s": 0.541875,
+   "onnx_ratio": 0.5862068965517242,
+   "torch_s": 0.541875,
+   "torch_ratio": 0.5862068965517242
+  },
+  {
+   "voice": "female",
+   "cid": "2679",
+   "words": 2,
+   "human_s": 1.19,
+   "onnx_s": 0.8075,
+   "onnx_ratio": 0.6785714285714286,
+   "torch_s": 0.8075,
+   "torch_ratio": 0.6785714285714286
+  },
+  {
+   "voice": "female",
+   "cid": "228",
+   "words": 2,
+   "human_s": 0.988125,
+   "onnx_s": 0.945625,
+   "onnx_ratio": 0.956989247311828,
+   "torch_s": 0.945625,
+   "torch_ratio": 0.956989247311828
+  },
+  {
+   "voice": "female",
+   "cid": "4342",
+   "words": 2,
+   "human_s": 1.105,
+   "onnx_s": 0.91375,
+   "onnx_ratio": 0.8269230769230769,
+   "torch_s": 0.91375,
+   "torch_ratio": 0.8269230769230769
+  },
+  {
+   "voice": "female",
+   "cid": "1634",
+   "words": 2,
+   "human_s": 1.285625,
+   "onnx_s": 1.16875,
+   "onnx_ratio": 0.9090909090909091,
+   "torch_s": 1.16875,
+   "torch_ratio": 0.9090909090909091
+  },
+  {
+   "voice": "female",
+   "cid": "2441",
+   "words": 2,
+   "human_s": 1.136875,
+   "onnx_s": 0.796875,
+   "onnx_ratio": 0.7009345794392523,
+   "torch_s": 0.796875,
+   "torch_ratio": 0.7009345794392523
+  },
+  {
+   "voice": "female",
+   "cid": "2294",
+   "words": 2,
+   "human_s": 2.709375,
+   "onnx_s": 1.7,
+   "onnx_ratio": 0.6274509803921569,
+   "torch_s": 1.7,
+   "torch_ratio": 0.6274509803921569
+  },
+  {
+   "voice": "female",
+   "cid": "1215",
+   "words": 2,
+   "human_s": 1.21125,
+   "onnx_s": 1.200625,
+   "onnx_ratio": 0.9912280701754387,
+   "torch_s": 1.200625,
+   "torch_ratio": 0.9912280701754387
+  },
+  {
+   "voice": "female",
+   "cid": "214",
+   "words": 2,
+   "human_s": 1.0625,
+   "onnx_s": 0.988125,
+   "onnx_ratio": 0.93,
+   "torch_s": 0.988125,
+   "torch_ratio": 0.93
+  },
+  {
+   "voice": "female",
+   "cid": "2004",
+   "words": 2,
+   "human_s": 1.136875,
+   "onnx_s": 0.945625,
+   "onnx_ratio": 0.8317757009345794,
+   "torch_s": 0.945625,
+   "torch_ratio": 0.8317757009345794
+  },
+  {
+   "voice": "female",
+   "cid": "1859",
+   "words": 2,
+   "human_s": 1.04125,
+   "onnx_s": 0.99875,
+   "onnx_ratio": 0.9591836734693878,
+   "torch_s": 0.99875,
+   "torch_ratio": 0.9591836734693878
+  },
+  {
+   "voice": "female",
+   "cid": "1320",
+   "words": 2,
+   "human_s": 0.91375,
+   "onnx_s": 0.85,
+   "onnx_ratio": 0.9302325581395349,
+   "torch_s": 0.85,
+   "torch_ratio": 0.9302325581395349
+  },
+  {
+   "voice": "female",
+   "cid": "1879",
+   "words": 2,
+   "human_s": 1.02,
+   "onnx_s": 0.8925,
+   "onnx_ratio": 0.875,
+   "torch_s": 0.8925,
+   "torch_ratio": 0.875
+  },
+  {
+   "voice": "female",
+   "cid": "2342",
+   "words": 2,
+   "human_s": 1.774375,
+   "onnx_s": 1.306875,
+   "onnx_ratio": 0.7365269461077845,
+   "torch_s": 1.306875,
+   "torch_ratio": 0.7365269461077845
+  },
+  {
+   "voice": "female",
+   "cid": "1383",
+   "words": 3,
+   "human_s": 1.519375,
+   "onnx_s": 1.200625,
+   "onnx_ratio": 0.7902097902097903,
+   "torch_s": 1.200625,
+   "torch_ratio": 0.7902097902097903
+  },
+  {
+   "voice": "female",
+   "cid": "693",
+   "words": 3,
+   "human_s": 2.050625,
+   "onnx_s": 1.583125,
+   "onnx_ratio": 0.7720207253886009,
+   "torch_s": 1.583125,
+   "torch_ratio": 0.7720207253886009
+  },
+  {
+   "voice": "female",
+   "cid": "3738",
+   "words": 3,
+   "human_s": 1.328125,
+   "onnx_s": 1.46625,
+   "onnx_ratio": 1.104,
+   "torch_s": 1.46625,
+   "torch_ratio": 1.104
+  },
+  {
+   "voice": "female",
+   "cid": "563",
+   "words": 3,
+   "human_s": 1.615,
+   "onnx_s": 1.434375,
+   "onnx_ratio": 0.888157894736842,
+   "torch_s": 1.434375,
+   "torch_ratio": 0.888157894736842
+  },
+  {
+   "voice": "female",
+   "cid": "539",
+   "words": 3,
+   "human_s": 1.50875,
+   "onnx_s": 1.36,
+   "onnx_ratio": 0.9014084507042254,
+   "torch_s": 1.36,
+   "torch_ratio": 0.9014084507042254
+  },
+  {
+   "voice": "female",
+   "cid": "1412",
+   "words": 3,
+   "human_s": 1.67875,
+   "onnx_s": 1.349375,
+   "onnx_ratio": 0.8037974683544304,
+   "torch_s": 1.349375,
+   "torch_ratio": 0.8037974683544304
+  },
+  {
+   "voice": "female",
+   "cid": "2665",
+   "words": 3,
+   "human_s": 1.306875,
+   "onnx_s": 0.860625,
+   "onnx_ratio": 0.6585365853658537,
+   "torch_s": 0.860625,
+   "torch_ratio": 0.6585365853658537
+  },
+  {
+   "voice": "female",
+   "cid": "1294",
+   "words": 3,
+   "human_s": 1.625625,
+   "onnx_s": 1.38125,
+   "onnx_ratio": 0.8496732026143791,
+   "torch_s": 1.38125,
+   "torch_ratio": 0.8496732026143791
+  },
+  {
+   "voice": "female",
+   "cid": "2844",
+   "words": 3,
+   "human_s": 1.4025,
+   "onnx_s": 1.306875,
+   "onnx_ratio": 0.9318181818181818,
+   "torch_s": 1.306875,
+   "torch_ratio": 0.9318181818181818
+  },
+  {
+   "voice": "female",
+   "cid": "1950",
+   "words": 3,
+   "human_s": 1.59375,
+   "onnx_s": 1.4875,
+   "onnx_ratio": 0.9333333333333333,
+   "torch_s": 1.4875,
+   "torch_ratio": 0.9333333333333333
+  },
+  {
+   "voice": "female",
+   "cid": "1203",
+   "words": 3,
+   "human_s": 1.455625,
+   "onnx_s": 1.275,
+   "onnx_ratio": 0.875912408759124,
+   "torch_s": 1.275,
+   "torch_ratio": 0.875912408759124
+  },
+  {
+   "voice": "female",
+   "cid": "2099",
+   "words": 3,
+   "human_s": 1.46625,
+   "onnx_s": 0.988125,
+   "onnx_ratio": 0.6739130434782609,
+   "torch_s": 0.988125,
+   "torch_ratio": 0.6739130434782609
+  },
+  {
+   "voice": "female",
+   "cid": "2092",
+   "words": 3,
+   "human_s": 1.21125,
+   "onnx_s": 1.0625,
+   "onnx_ratio": 0.8771929824561404,
+   "torch_s": 1.0625,
+   "torch_ratio": 0.8771929824561404
+  },
+  {
+   "voice": "female",
+   "cid": "560",
+   "words": 3,
+   "human_s": 1.243125,
+   "onnx_s": 1.25375,
+   "onnx_ratio": 1.0085470085470085,
+   "torch_s": 1.25375,
+   "torch_ratio": 1.0085470085470085
+  },
+  {
+   "voice": "female",
+   "cid": "2598",
+   "words": 3,
+   "human_s": 2.52875,
+   "onnx_s": 1.97625,
+   "onnx_ratio": 0.7815126050420168,
+   "torch_s": 1.97625,
+   "torch_ratio": 0.7815126050420168
+  },
+  {
+   "voice": "female",
+   "cid": "3186",
+   "words": 3,
+   "human_s": 1.413125,
+   "onnx_s": 1.1475,
+   "onnx_ratio": 0.8120300751879699,
+   "torch_s": 1.1475,
+   "torch_ratio": 0.8120300751879699
+  },
+  {
+   "voice": "female",
+   "cid": "446",
+   "words": 3,
+   "human_s": 1.349375,
+   "onnx_s": 1.264375,
+   "onnx_ratio": 0.937007874015748,
+   "torch_s": 1.264375,
+   "torch_ratio": 0.937007874015748
+  },
+  {
+   "voice": "female",
+   "cid": "2652",
+   "words": 3,
+   "human_s": 1.4025,
+   "onnx_s": 1.200625,
+   "onnx_ratio": 0.8560606060606061,
+   "torch_s": 1.200625,
+   "torch_ratio": 0.8560606060606061
+  },
+  {
+   "voice": "female",
+   "cid": "440",
+   "words": 3,
+   "human_s": 1.29625,
+   "onnx_s": 1.25375,
+   "onnx_ratio": 0.9672131147540983,
+   "torch_s": 1.25375,
+   "torch_ratio": 0.9672131147540983
+  },
+  {
+   "voice": "female",
+   "cid": "2848",
+   "words": 3,
+   "human_s": 1.540625,
+   "onnx_s": 1.455625,
+   "onnx_ratio": 0.9448275862068966,
+   "torch_s": 1.455625,
+   "torch_ratio": 0.9448275862068966
+  },
+  {
+   "voice": "female",
+   "cid": "5071",
+   "words": 3,
+   "human_s": 1.328125,
+   "onnx_s": 1.1475,
+   "onnx_ratio": 0.864,
+   "torch_s": 1.1475,
+   "torch_ratio": 0.864
+  },
+  {
+   "voice": "female",
+   "cid": "3927",
+   "words": 4,
+   "human_s": 1.02,
+   "onnx_s": 0.95625,
+   "onnx_ratio": 0.9375,
+   "torch_s": 0.95625,
+   "torch_ratio": 0.9375
+  },
+  {
+   "voice": "female",
+   "cid": "4371",
+   "words": 4,
+   "human_s": 1.6575,
+   "onnx_s": 1.33875,
+   "onnx_ratio": 0.8076923076923078,
+   "torch_s": 1.33875,
+   "torch_ratio": 0.8076923076923078
+  },
+  {
+   "voice": "female",
+   "cid": "3303",
+   "words": 5,
+   "human_s": 1.498125,
+   "onnx_s": 1.3175,
+   "onnx_ratio": 0.8794326241134751,
+   "torch_s": 1.3175,
+   "torch_ratio": 0.8794326241134751
+  },
+  {
+   "voice": "female",
+   "cid": "2354",
+   "words": 4,
+   "human_s": 2.61375,
+   "onnx_s": 2.029375,
+   "onnx_ratio": 0.7764227642276422,
+   "torch_s": 2.029375,
+   "torch_ratio": 0.7764227642276422
+  },
+  {
+   "voice": "female",
+   "cid": "3668",
+   "words": 6,
+   "human_s": 2.624375,
+   "onnx_s": 2.65625,
+   "onnx_ratio": 1.0121457489878543,
+   "torch_s": 2.65625,
+   "torch_ratio": 1.0121457489878543
+  },
+  {
+   "voice": "female",
+   "cid": "4885",
+   "words": 6,
+   "human_s": 1.880625,
+   "onnx_s": 1.8275,
+   "onnx_ratio": 0.9717514124293785,
+   "torch_s": 1.8275,
+   "torch_ratio": 0.9717514124293785
+  },
+  {
+   "voice": "female",
+   "cid": "3573",
+   "words": 4,
+   "human_s": 1.923125,
+   "onnx_s": 1.7,
+   "onnx_ratio": 0.8839779005524862,
+   "torch_s": 1.7,
+   "torch_ratio": 0.8839779005524862
+  },
+  {
+   "voice": "female",
+   "cid": "2288",
+   "words": 6,
+   "human_s": 3.113125,
+   "onnx_s": 2.943125,
+   "onnx_ratio": 0.9453924914675769,
+   "torch_s": 2.943125,
+   "torch_ratio": 0.9453924914675769
+  },
+  {
+   "voice": "female",
+   "cid": "1891",
+   "words": 4,
+   "human_s": 1.625625,
+   "onnx_s": 1.3175,
+   "onnx_ratio": 0.8104575163398692,
+   "torch_s": 1.3175,
+   "torch_ratio": 0.8104575163398692
+  },
+  {
+   "voice": "female",
+   "cid": "1359",
+   "words": 4,
+   "human_s": 1.8275,
+   "onnx_s": 1.689375,
+   "onnx_ratio": 0.9244186046511629,
+   "torch_s": 1.689375,
+   "torch_ratio": 0.9244186046511629
+  },
+  {
+   "voice": "female",
+   "cid": "1857",
+   "words": 4,
+   "human_s": 1.073125,
+   "onnx_s": 0.966875,
+   "onnx_ratio": 0.9009900990099009,
+   "torch_s": 0.966875,
+   "torch_ratio": 0.9009900990099009
+  },
+  {
+   "voice": "female",
+   "cid": "686",
+   "words": 4,
+   "human_s": 1.93375,
+   "onnx_s": 1.7,
+   "onnx_ratio": 0.8791208791208791,
+   "torch_s": 1.7,
+   "torch_ratio": 0.8791208791208791
+  },
+  {
+   "voice": "female",
+   "cid": "4780",
+   "words": 6,
+   "human_s": 2.5075,
+   "onnx_s": 2.305625,
+   "onnx_ratio": 0.9194915254237289,
+   "torch_s": 2.305625,
+   "torch_ratio": 0.9194915254237289
+  },
+  {
+   "voice": "female",
+   "cid": "2289",
+   "words": 6,
+   "human_s": 3.601875,
+   "onnx_s": 3.113125,
+   "onnx_ratio": 0.8643067846607669,
+   "torch_s": 3.113125,
+   "torch_ratio": 0.8643067846607669
+  },
+  {
+   "voice": "female",
+   "cid": "4321",
+   "words": 6,
+   "human_s": 2.008125,
+   "onnx_s": 2.050625,
+   "onnx_ratio": 1.0211640211640212,
+   "torch_s": 2.050625,
+   "torch_ratio": 1.0211640211640212
+  },
+  {
+   "voice": "female",
+   "cid": "3917",
+   "words": 6,
+   "human_s": 2.78375,
+   "onnx_s": 2.751875,
+   "onnx_ratio": 0.9885496183206107,
+   "torch_s": 2.751875,
+   "torch_ratio": 0.9885496183206107
+  },
+  {
+   "voice": "female",
+   "cid": "2584",
+   "words": 6,
+   "human_s": 1.955,
+   "onnx_s": 1.67875,
+   "onnx_ratio": 0.858695652173913,
+   "torch_s": 1.67875,
+   "torch_ratio": 0.858695652173913
+  },
+  {
+   "voice": "female",
+   "cid": "3531",
+   "words": 4,
+   "human_s": 1.561875,
+   "onnx_s": 1.4875,
+   "onnx_ratio": 0.9523809523809524,
+   "torch_s": 1.4875,
+   "torch_ratio": 0.9523809523809524
+  },
+  {
+   "voice": "female",
+   "cid": "2202",
+   "words": 4,
+   "human_s": 1.9125,
+   "onnx_s": 1.646875,
+   "onnx_ratio": 0.8611111111111112,
+   "torch_s": 1.646875,
+   "torch_ratio": 0.8611111111111112
+  },
+  {
+   "voice": "female",
+   "cid": "5072",
+   "words": 5,
+   "human_s": 1.816875,
+   "onnx_s": 1.7,
+   "onnx_ratio": 0.935672514619883,
+   "torch_s": 1.7,
+   "torch_ratio": 0.935672514619883
+  },
+  {
+   "voice": "female",
+   "cid": "600",
+   "words": 6,
+   "human_s": 3.29375,
+   "onnx_s": 3.176875,
+   "onnx_ratio": 0.964516129032258,
+   "torch_s": 3.176875,
+   "torch_ratio": 0.964516129032258
+  },
+  {
+   "voice": "female",
+   "cid": "849",
+   "words": 6,
+   "human_s": 2.369375,
+   "onnx_s": 2.10375,
+   "onnx_ratio": 0.8878923766816144,
+   "torch_s": 2.10375,
+   "torch_ratio": 0.8878923766816144
+  },
+  {
+   "voice": "female",
+   "cid": "4188",
+   "words": 5,
+   "human_s": 1.955,
+   "onnx_s": 2.071875,
+   "onnx_ratio": 1.059782608695652,
+   "torch_s": 2.071875,
+   "torch_ratio": 1.059782608695652
+  },
+  {
+   "voice": "female",
+   "cid": "3163",
+   "words": 6,
+   "human_s": 1.944375,
+   "onnx_s": 1.84875,
+   "onnx_ratio": 0.9508196721311475,
+   "torch_s": 1.84875,
+   "torch_ratio": 0.9508196721311475
+  },
+  {
+   "voice": "female",
+   "cid": "951",
+   "words": 12,
+   "human_s": 5.089375,
+   "onnx_s": 4.834375,
+   "onnx_ratio": 0.9498956158663882,
+   "torch_s": 4.834375,
+   "torch_ratio": 0.9498956158663882
+  },
+  {
+   "voice": "female",
+   "cid": "4507",
+   "words": 11,
+   "human_s": 5.493125,
+   "onnx_s": 4.56875,
+   "onnx_ratio": 0.8317214700193423,
+   "torch_s": 4.56875,
+   "torch_ratio": 0.8317214700193423
+  },
+  {
+   "voice": "female",
+   "cid": "2024",
+   "words": 10,
+   "human_s": 3.559375,
+   "onnx_s": 3.346875,
+   "onnx_ratio": 0.9402985074626865,
+   "torch_s": 3.346875,
+   "torch_ratio": 0.9402985074626865
+  },
+  {
+   "voice": "female",
+   "cid": "855",
+   "words": 8,
+   "human_s": 2.89,
+   "onnx_s": 2.815625,
+   "onnx_ratio": 0.9742647058823528,
+   "torch_s": 2.815625,
+   "torch_ratio": 0.9742647058823528
+  },
+  {
+   "voice": "female",
+   "cid": "2962",
+   "words": 7,
+   "human_s": 2.74125,
+   "onnx_s": 2.539375,
+   "onnx_ratio": 0.9263565891472869,
+   "torch_s": 2.539375,
+   "torch_ratio": 0.9263565891472869
+  },
+  {
+   "voice": "female",
+   "cid": "2521",
+   "words": 12,
+   "human_s": 4.154375,
+   "onnx_s": 4.01625,
+   "onnx_ratio": 0.9667519181585679,
+   "torch_s": 4.01625,
+   "torch_ratio": 0.9667519181585679
+  },
+  {
+   "voice": "female",
+   "cid": "195",
+   "words": 7,
+   "human_s": 2.581875,
+   "onnx_s": 2.57125,
+   "onnx_ratio": 0.9958847736625513,
+   "torch_s": 2.57125,
+   "torch_ratio": 0.9958847736625513
+  },
+  {
+   "voice": "female",
+   "cid": "3959",
+   "words": 7,
+   "human_s": 3.12375,
+   "onnx_s": 2.7625,
+   "onnx_ratio": 0.8843537414965987,
+   "torch_s": 2.7625,
+   "torch_ratio": 0.8843537414965987
+  },
+  {
+   "voice": "female",
+   "cid": "4551",
+   "words": 10,
+   "human_s": 4.366875,
+   "onnx_s": 3.71875,
+   "onnx_ratio": 0.851581508515815,
+   "torch_s": 3.71875,
+   "torch_ratio": 0.851581508515815
+  },
+  {
+   "voice": "female",
+   "cid": "3364",
+   "words": 8,
+   "human_s": 3.1875,
+   "onnx_s": 3.25125,
+   "onnx_ratio": 1.02,
+   "torch_s": 3.25125,
+   "torch_ratio": 1.02
+  },
+  {
+   "voice": "female",
+   "cid": "3435",
+   "words": 11,
+   "human_s": 4.770625,
+   "onnx_s": 4.52625,
+   "onnx_ratio": 0.9487750556792873,
+   "torch_s": 4.52625,
+   "torch_ratio": 0.9487750556792873
+  },
+  {
+   "voice": "female",
+   "cid": "4731",
+   "words": 7,
+   "human_s": 3.08125,
+   "onnx_s": 2.7625,
+   "onnx_ratio": 0.8965517241379312,
+   "torch_s": 2.7625,
+   "torch_ratio": 0.8965517241379312
+  },
+  {
+   "voice": "female",
+   "cid": "4927",
+   "words": 11,
+   "human_s": 3.559375,
+   "onnx_s": 3.899375,
+   "onnx_ratio": 1.0955223880597014,
+   "torch_s": 3.899375,
+   "torch_ratio": 1.0955223880597014
+  },
+  {
+   "voice": "female",
+   "cid": "1871",
+   "words": 9,
+   "human_s": 4.281875,
+   "onnx_s": 3.984375,
+   "onnx_ratio": 0.9305210918114143,
+   "torch_s": 3.984375,
+   "torch_ratio": 0.9305210918114143
+  },
+  {
+   "voice": "female",
+   "cid": "3553",
+   "words": 9,
+   "human_s": 3.59125,
+   "onnx_s": 3.580625,
+   "onnx_ratio": 0.9970414201183432,
+   "torch_s": 3.580625,
+   "torch_ratio": 0.9970414201183432
+  },
+  {
+   "voice": "female",
+   "cid": "3017",
+   "words": 9,
+   "human_s": 3.580625,
+   "onnx_s": 3.644375,
+   "onnx_ratio": 1.0178041543026706,
+   "torch_s": 3.644375,
+   "torch_ratio": 1.0178041543026706
+  },
+  {
+   "voice": "female",
+   "cid": "3470",
+   "words": 8,
+   "human_s": 2.539375,
+   "onnx_s": 2.475625,
+   "onnx_ratio": 0.9748953974895397,
+   "torch_s": 2.475625,
+   "torch_ratio": 0.9748953974895397
+  },
+  {
+   "voice": "female",
+   "cid": "4793",
+   "words": 8,
+   "human_s": 2.454375,
+   "onnx_s": 2.23125,
+   "onnx_ratio": 0.9090909090909091,
+   "torch_s": 2.23125,
+   "torch_ratio": 0.9090909090909091
+  },
+  {
+   "voice": "female",
+   "cid": "2705",
+   "words": 7,
+   "human_s": 3.37875,
+   "onnx_s": 2.9325,
+   "onnx_ratio": 0.8679245283018868,
+   "torch_s": 2.9325,
+   "torch_ratio": 0.8679245283018868
+  },
+  {
+   "voice": "female",
+   "cid": "395",
+   "words": 7,
+   "human_s": 2.156875,
+   "onnx_s": 2.465,
+   "onnx_ratio": 1.1428571428571428,
+   "torch_s": 2.465,
+   "torch_ratio": 1.1428571428571428
+  },
+  {
+   "voice": "female",
+   "cid": "5062",
+   "words": 12,
+   "human_s": 3.825,
+   "onnx_s": 3.835625,
+   "onnx_ratio": 1.0027777777777778,
+   "torch_s": 3.835625,
+   "torch_ratio": 1.0027777777777778
+  },
+  {
+   "voice": "female",
+   "cid": "1942",
+   "words": 14,
+   "human_s": 4.898125,
+   "onnx_s": 5.1,
+   "onnx_ratio": 1.0412147505422993,
+   "torch_s": 5.1,
+   "torch_ratio": 1.0412147505422993
+  },
+  {
+   "voice": "female",
+   "cid": "3390",
+   "words": 17,
+   "human_s": 7.554375,
+   "onnx_s": 6.895625,
+   "onnx_ratio": 0.9127988748241912,
+   "torch_s": 6.895625,
+   "torch_ratio": 0.9127988748241912
+  },
+  {
+   "voice": "female",
+   "cid": "4434",
+   "words": 20,
+   "human_s": 6.853125,
+   "onnx_s": 5.684375,
+   "onnx_ratio": 0.8294573643410853,
+   "torch_s": 5.684375,
+   "torch_ratio": 0.8294573643410853
+  },
+  {
+   "voice": "female",
+   "cid": "4361",
+   "words": 28,
+   "human_s": 12.13375,
+   "onnx_s": 10.90125,
+   "onnx_ratio": 0.8984238178633975,
+   "torch_s": 10.90125,
+   "torch_ratio": 0.8984238178633975
+  },
+  {
+   "voice": "female",
+   "cid": "4033",
+   "words": 16,
+   "human_s": 5.61,
+   "onnx_s": 5.620625,
+   "onnx_ratio": 1.0018939393939394,
+   "torch_s": 5.620625,
+   "torch_ratio": 1.0018939393939394
+  },
+  {
+   "voice": "female",
+   "cid": "3284",
+   "words": 17,
+   "human_s": 6.26875,
+   "onnx_s": 6.035,
+   "onnx_ratio": 0.9627118644067797,
+   "torch_s": 6.035,
+   "torch_ratio": 0.9627118644067797
+  },
+  {
+   "voice": "female",
+   "cid": "2619",
+   "words": 17,
+   "human_s": 8.3725,
+   "onnx_s": 7.84125,
+   "onnx_ratio": 0.9365482233502537,
+   "torch_s": 7.84125,
+   "torch_ratio": 0.9365482233502537
+  },
+  {
+   "voice": "female",
+   "cid": "160",
+   "words": 15,
+   "human_s": 5.37625,
+   "onnx_s": 5.54625,
+   "onnx_ratio": 1.0316205533596838,
+   "torch_s": 5.54625,
+   "torch_ratio": 1.0316205533596838
+  },
+  {
+   "voice": "female",
+   "cid": "3346",
+   "words": 21,
+   "human_s": 8.13875,
+   "onnx_s": 7.82,
+   "onnx_ratio": 0.9608355091383812,
+   "torch_s": 7.82,
+   "torch_ratio": 0.9608355091383812
+  },
+  {
+   "voice": "female",
+   "cid": "2720",
+   "words": 18,
+   "human_s": 5.20625,
+   "onnx_s": 5.408125,
+   "onnx_ratio": 1.0387755102040817,
+   "torch_s": 5.408125,
+   "torch_ratio": 1.0387755102040817
+  },
+  {
+   "voice": "female",
+   "cid": "1241",
+   "words": 13,
+   "human_s": 5.44,
+   "onnx_s": 5.185,
+   "onnx_ratio": 0.9531249999999999,
+   "torch_s": 5.185,
+   "torch_ratio": 0.9531249999999999
+  },
+  {
+   "voice": "female",
+   "cid": "4185",
+   "words": 14,
+   "human_s": 6.56625,
+   "onnx_s": 5.27,
+   "onnx_ratio": 0.802588996763754,
+   "torch_s": 5.27,
+   "torch_ratio": 0.802588996763754
+  },
+  {
+   "voice": "female2",
+   "cid": "2280",
+   "words": 2,
+   "human_s": 2.688125,
+   "onnx_s": 1.4025,
+   "onnx_ratio": 0.5217391304347827,
+   "torch_s": 1.4025,
+   "torch_ratio": 0.5217391304347827
+  },
+  {
+   "voice": "female2",
+   "cid": "1263",
+   "words": 2,
+   "human_s": 1.349375,
+   "onnx_s": 1.29625,
+   "onnx_ratio": 0.9606299212598425,
+   "torch_s": 1.29625,
+   "torch_ratio": 0.9606299212598425
+  },
+  {
+   "voice": "female2",
+   "cid": "1474",
+   "words": 2,
+   "human_s": 0.74375,
+   "onnx_s": 0.881875,
+   "onnx_ratio": 1.1857142857142857,
+   "torch_s": 0.881875,
+   "torch_ratio": 1.1857142857142857
+  },
+  {
+   "voice": "female2",
+   "cid": "1332",
+   "words": 2,
+   "human_s": 0.924375,
+   "onnx_s": 0.754375,
+   "onnx_ratio": 0.8160919540229886,
+   "torch_s": 0.754375,
+   "torch_ratio": 0.8160919540229886
+  },
+  {
+   "voice": "female2",
+   "cid": "1763",
+   "words": 2,
+   "human_s": 1.094375,
+   "onnx_s": 1.04125,
+   "onnx_ratio": 0.9514563106796116,
+   "torch_s": 1.04125,
+   "torch_ratio": 0.9514563106796116
+  },
+  {
+   "voice": "female2",
+   "cid": "1735",
+   "words": 2,
+   "human_s": 0.754375,
+   "onnx_s": 0.5525,
+   "onnx_ratio": 0.7323943661971831,
+   "torch_s": 0.5525,
+   "torch_ratio": 0.7323943661971831
+  },
+  {
+   "voice": "female2",
+   "cid": "2284",
+   "words": 2,
+   "human_s": 2.369375,
+   "onnx_s": 1.5725,
+   "onnx_ratio": 0.6636771300448431,
+   "torch_s": 1.5725,
+   "torch_ratio": 0.6636771300448431
+  },
+  {
+   "voice": "female2",
+   "cid": "580",
+   "words": 2,
+   "human_s": 1.2325,
+   "onnx_s": 1.221875,
+   "onnx_ratio": 0.9913793103448276,
+   "torch_s": 1.221875,
+   "torch_ratio": 0.9913793103448276
+  },
+  {
+   "voice": "female2",
+   "cid": "2075",
+   "words": 2,
+   "human_s": 1.29625,
+   "onnx_s": 1.12625,
+   "onnx_ratio": 0.8688524590163935,
+   "torch_s": 1.12625,
+   "torch_ratio": 0.8688524590163935
+  },
+  {
+   "voice": "female2",
+   "cid": "1789",
+   "words": 2,
+   "human_s": 1.3175,
+   "onnx_s": 1.264375,
+   "onnx_ratio": 0.9596774193548389,
+   "torch_s": 1.264375,
+   "torch_ratio": 0.9596774193548389
+  },
+  {
+   "voice": "female2",
+   "cid": "1448",
+   "words": 2,
+   "human_s": 0.91375,
+   "onnx_s": 0.796875,
+   "onnx_ratio": 0.872093023255814,
+   "torch_s": 0.796875,
+   "torch_ratio": 0.872093023255814
+  },
+  {
+   "voice": "female2",
+   "cid": "2006",
+   "words": 2,
+   "human_s": 1.04125,
+   "onnx_s": 1.030625,
+   "onnx_ratio": 0.9897959183673468,
+   "torch_s": 1.030625,
+   "torch_ratio": 0.9897959183673468
+  },
+  {
+   "voice": "female2",
+   "cid": "3107",
+   "words": 2,
+   "human_s": 0.70125,
+   "onnx_s": 0.82875,
+   "onnx_ratio": 1.1818181818181817,
+   "torch_s": 0.82875,
+   "torch_ratio": 1.1818181818181817
+  },
+  {
+   "voice": "female2",
+   "cid": "3077",
+   "words": 2,
+   "human_s": 1.030625,
+   "onnx_s": 0.881875,
+   "onnx_ratio": 0.8556701030927836,
+   "torch_s": 0.881875,
+   "torch_ratio": 0.8556701030927836
+  },
+  {
+   "voice": "female2",
+   "cid": "1872",
+   "words": 2,
+   "human_s": 0.988125,
+   "onnx_s": 0.935,
+   "onnx_ratio": 0.946236559139785,
+   "torch_s": 0.935,
+   "torch_ratio": 0.946236559139785
+  },
+  {
+   "voice": "female2",
+   "cid": "1619",
+   "words": 2,
+   "human_s": 0.85,
+   "onnx_s": 0.68,
+   "onnx_ratio": 0.8,
+   "torch_s": 0.68,
+   "torch_ratio": 0.8
+  },
+  {
+   "voice": "female2",
+   "cid": "1709",
+   "words": 2,
+   "human_s": 0.82875,
+   "onnx_s": 0.8925,
+   "onnx_ratio": 1.0769230769230769,
+   "torch_s": 0.8925,
+   "torch_ratio": 1.0769230769230769
+  },
+  {
+   "voice": "female2",
+   "cid": "1304",
+   "words": 2,
+   "human_s": 1.391875,
+   "onnx_s": 1.0625,
+   "onnx_ratio": 0.7633587786259542,
+   "torch_s": 1.0625,
+   "torch_ratio": 0.7633587786259542
+  },
+  {
+   "voice": "female2",
+   "cid": "855",
+   "words": 3,
+   "human_s": 1.391875,
+   "onnx_s": 1.25375,
+   "onnx_ratio": 0.9007633587786259,
+   "torch_s": 1.25375,
+   "torch_ratio": 0.9007633587786259
+  },
+  {
+   "voice": "female2",
+   "cid": "1286",
+   "words": 3,
+   "human_s": 1.710625,
+   "onnx_s": 1.413125,
+   "onnx_ratio": 0.826086956521739,
+   "torch_s": 1.413125,
+   "torch_ratio": 0.826086956521739
+  },
+  {
+   "voice": "female2",
+   "cid": "2879",
+   "words": 3,
+   "human_s": 1.455625,
+   "onnx_s": 1.604375,
+   "onnx_ratio": 1.102189781021898,
+   "torch_s": 1.604375,
+   "torch_ratio": 1.102189781021898
+  },
+  {
+   "voice": "female2",
+   "cid": "3769",
+   "words": 3,
+   "human_s": 1.200625,
+   "onnx_s": 1.073125,
+   "onnx_ratio": 0.8938053097345133,
+   "torch_s": 1.073125,
+   "torch_ratio": 0.8938053097345133
+  },
+  {
+   "voice": "female2",
+   "cid": "98",
+   "words": 3,
+   "human_s": 1.391875,
+   "onnx_s": 1.413125,
+   "onnx_ratio": 1.015267175572519,
+   "torch_s": 1.413125,
+   "torch_ratio": 1.015267175572519
+  },
+  {
+   "voice": "female2",
+   "cid": "2406",
+   "words": 3,
+   "human_s": 1.094375,
+   "onnx_s": 1.02,
+   "onnx_ratio": 0.9320388349514562,
+   "torch_s": 1.02,
+   "torch_ratio": 0.9320388349514562
+  },
+  {
+   "voice": "female2",
+   "cid": "2731",
+   "words": 3,
+   "human_s": 1.455625,
+   "onnx_s": 1.561875,
+   "onnx_ratio": 1.072992700729927,
+   "torch_s": 1.561875,
+   "torch_ratio": 1.072992700729927
+  },
+  {
+   "voice": "female2",
+   "cid": "1394",
+   "words": 3,
+   "human_s": 1.583125,
+   "onnx_s": 1.243125,
+   "onnx_ratio": 0.7852348993288591,
+   "torch_s": 1.243125,
+   "torch_ratio": 0.7852348993288591
+  },
+  {
+   "voice": "female2",
+   "cid": "47",
+   "words": 3,
+   "human_s": 1.455625,
+   "onnx_s": 1.391875,
+   "onnx_ratio": 0.9562043795620438,
+   "torch_s": 1.391875,
+   "torch_ratio": 0.9562043795620438
+  },
+  {
+   "voice": "female2",
+   "cid": "817",
+   "words": 3,
+   "human_s": 1.455625,
+   "onnx_s": 1.53,
+   "onnx_ratio": 1.051094890510949,
+   "torch_s": 1.53,
+   "torch_ratio": 1.051094890510949
+  },
+  {
+   "voice": "female2",
+   "cid": "2242",
+   "words": 3,
+   "human_s": 1.67875,
+   "onnx_s": 1.6575,
+   "onnx_ratio": 0.9873417721518988,
+   "torch_s": 1.6575,
+   "torch_ratio": 0.9873417721518988
+  },
+  {
+   "voice": "female2",
+   "cid": "2552",
+   "words": 3,
+   "human_s": 1.7425,
+   "onnx_s": 1.901875,
+   "onnx_ratio": 1.0914634146341464,
+   "torch_s": 1.901875,
+   "torch_ratio": 1.0914634146341464
+  },
+  {
+   "voice": "female2",
+   "cid": "2039",
+   "words": 3,
+   "human_s": 1.04125,
+   "onnx_s": 0.988125,
+   "onnx_ratio": 0.9489795918367347,
+   "torch_s": 0.988125,
+   "torch_ratio": 0.9489795918367347
+  },
+  {
+   "voice": "female2",
+   "cid": "2832",
+   "words": 3,
+   "human_s": 1.21125,
+   "onnx_s": 1.370625,
+   "onnx_ratio": 1.131578947368421,
+   "torch_s": 1.370625,
+   "torch_ratio": 1.131578947368421
+  },
+  {
+   "voice": "female2",
+   "cid": "2642",
+   "words": 3,
+   "human_s": 1.25375,
+   "onnx_s": 1.29625,
+   "onnx_ratio": 1.0338983050847457,
+   "torch_s": 1.29625,
+   "torch_ratio": 1.0338983050847457
+  },
+  {
+   "voice": "female2",
+   "cid": "1537",
+   "words": 3,
+   "human_s": 2.220625,
+   "onnx_s": 1.4025,
+   "onnx_ratio": 0.631578947368421,
+   "torch_s": 1.4025,
+   "torch_ratio": 0.631578947368421
+  },
+  {
+   "voice": "female2",
+   "cid": "697",
+   "words": 3,
+   "human_s": 1.434375,
+   "onnx_s": 1.55125,
+   "onnx_ratio": 1.0814814814814815,
+   "torch_s": 1.55125,
+   "torch_ratio": 1.0814814814814815
+  },
+  {
+   "voice": "female2",
+   "cid": "3115",
+   "words": 3,
+   "human_s": 1.19,
+   "onnx_s": 1.243125,
+   "onnx_ratio": 1.0446428571428572,
+   "torch_s": 1.243125,
+   "torch_ratio": 1.0446428571428572
+  },
+  {
+   "voice": "female2",
+   "cid": "2472",
+   "words": 3,
+   "human_s": 1.498125,
+   "onnx_s": 1.710625,
+   "onnx_ratio": 1.1418439716312059,
+   "torch_s": 1.710625,
+   "torch_ratio": 1.1418439716312059
+  },
+  {
+   "voice": "female2",
+   "cid": "2838",
+   "words": 3,
+   "human_s": 1.413125,
+   "onnx_s": 1.498125,
+   "onnx_ratio": 1.0601503759398496,
+   "torch_s": 1.498125,
+   "torch_ratio": 1.0601503759398496
+  },
+  {
+   "voice": "female2",
+   "cid": "2877",
+   "words": 3,
+   "human_s": 1.42375,
+   "onnx_s": 1.33875,
+   "onnx_ratio": 0.9402985074626866,
+   "torch_s": 1.33875,
+   "torch_ratio": 0.9402985074626866
+  },
+  {
+   "voice": "female2",
+   "cid": "3042",
+   "words": 3,
+   "human_s": 1.221875,
+   "onnx_s": 0.966875,
+   "onnx_ratio": 0.7913043478260869,
+   "torch_s": 0.966875,
+   "torch_ratio": 0.7913043478260869
+  },
+  {
+   "voice": "female2",
+   "cid": "2842",
+   "words": 5,
+   "human_s": 2.390625,
+   "onnx_s": 2.0825,
+   "onnx_ratio": 0.8711111111111112,
+   "torch_s": 2.0825,
+   "torch_ratio": 0.8711111111111112
+  },
+  {
+   "voice": "female2",
+   "cid": "1755",
+   "words": 5,
+   "human_s": 2.4225,
+   "onnx_s": 1.901875,
+   "onnx_ratio": 0.7850877192982456,
+   "torch_s": 1.901875,
+   "torch_ratio": 0.7850877192982456
+  },
+  {
+   "voice": "female2",
+   "cid": "3540",
+   "words": 6,
+   "human_s": 2.496875,
+   "onnx_s": 2.55,
+   "onnx_ratio": 1.0212765957446808,
+   "torch_s": 2.55,
+   "torch_ratio": 1.0212765957446808
+  },
+  {
+   "voice": "female2",
+   "cid": "3419",
+   "words": 5,
+   "human_s": 1.604375,
+   "onnx_s": 1.498125,
+   "onnx_ratio": 0.933774834437086,
+   "torch_s": 1.498125,
+   "torch_ratio": 0.933774834437086
+  },
+  {
+   "voice": "female2",
+   "cid": "2920",
+   "words": 4,
+   "human_s": 1.731875,
+   "onnx_s": 1.838125,
+   "onnx_ratio": 1.0613496932515336,
+   "torch_s": 1.838125,
+   "torch_ratio": 1.0613496932515336
+  },
+  {
+   "voice": "female2",
+   "cid": "3729",
+   "words": 5,
+   "human_s": 2.06125,
+   "onnx_s": 2.326875,
+   "onnx_ratio": 1.1288659793814433,
+   "torch_s": 2.326875,
+   "torch_ratio": 1.1288659793814433
+  },
+  {
+   "voice": "female2",
+   "cid": "2566",
+   "words": 6,
+   "human_s": 1.4025,
+   "onnx_s": 1.5725,
+   "onnx_ratio": 1.121212121212121,
+   "torch_s": 1.5725,
+   "torch_ratio": 1.121212121212121
+  },
+  {
+   "voice": "female2",
+   "cid": "2998",
+   "words": 6,
+   "human_s": 1.9975,
+   "onnx_s": 1.93375,
+   "onnx_ratio": 0.9680851063829787,
+   "torch_s": 1.93375,
+   "torch_ratio": 0.9680851063829787
+  },
+  {
+   "voice": "female2",
+   "cid": "2147",
+   "words": 4,
+   "human_s": 1.880625,
+   "onnx_s": 1.646875,
+   "onnx_ratio": 0.8757062146892656,
+   "torch_s": 1.646875,
+   "torch_ratio": 0.8757062146892656
+  },
+  {
+   "voice": "female2",
+   "cid": "1506",
+   "words": 4,
+   "human_s": 2.199375,
+   "onnx_s": 1.4025,
+   "onnx_ratio": 0.6376811594202899,
+   "torch_s": 1.4025,
+   "torch_ratio": 0.6376811594202899
+  },
+  {
+   "voice": "female2",
+   "cid": "1511",
+   "words": 4,
+   "human_s": 3.16625,
+   "onnx_s": 1.87,
+   "onnx_ratio": 0.5906040268456376,
+   "torch_s": 1.87,
+   "torch_ratio": 0.5906040268456376
+  },
+  {
+   "voice": "female2",
+   "cid": "1498",
+   "words": 4,
+   "human_s": 1.434375,
+   "onnx_s": 1.264375,
+   "onnx_ratio": 0.8814814814814815,
+   "torch_s": 1.264375,
+   "torch_ratio": 0.8814814814814815
+  },
+  {
+   "voice": "female2",
+   "cid": "476",
+   "words": 5,
+   "human_s": 1.97625,
+   "onnx_s": 1.9975,
+   "onnx_ratio": 1.010752688172043,
+   "torch_s": 1.9975,
+   "torch_ratio": 1.010752688172043
+  },
+  {
+   "voice": "female2",
+   "cid": "2373",
+   "words": 5,
+   "human_s": 1.604375,
+   "onnx_s": 1.646875,
+   "onnx_ratio": 1.0264900662251655,
+   "torch_s": 1.646875,
+   "torch_ratio": 1.0264900662251655
+  },
+  {
+   "voice": "female2",
+   "cid": "1521",
+   "words": 4,
+   "human_s": 1.29625,
+   "onnx_s": 1.25375,
+   "onnx_ratio": 0.9672131147540983,
+   "torch_s": 1.25375,
+   "torch_ratio": 0.9672131147540983
+  },
+  {
+   "voice": "female2",
+   "cid": "775",
+   "words": 5,
+   "human_s": 2.99625,
+   "onnx_s": 3.23,
+   "onnx_ratio": 1.0780141843971631,
+   "torch_s": 3.23,
+   "torch_ratio": 1.0780141843971631
+  },
+  {
+   "voice": "female2",
+   "cid": "341",
+   "words": 5,
+   "human_s": 2.23125,
+   "onnx_s": 2.4225,
+   "onnx_ratio": 1.0857142857142856,
+   "torch_s": 2.4225,
+   "torch_ratio": 1.0857142857142856
+  },
+  {
+   "voice": "female2",
+   "cid": "805",
+   "words": 4,
+   "human_s": 1.275,
+   "onnx_s": 1.445,
+   "onnx_ratio": 1.1333333333333335,
+   "torch_s": 1.445,
+   "torch_ratio": 1.1333333333333335
+  },
+  {
+   "voice": "female2",
+   "cid": "1673",
+   "words": 6,
+   "human_s": 2.04,
+   "onnx_s": 2.23125,
+   "onnx_ratio": 1.09375,
+   "torch_s": 2.23125,
+   "torch_ratio": 1.09375
+  },
+  {
+   "voice": "female2",
+   "cid": "684",
+   "words": 4,
+   "human_s": 2.21,
+   "onnx_s": 1.774375,
+   "onnx_ratio": 0.8028846153846154,
+   "torch_s": 1.774375,
+   "torch_ratio": 0.8028846153846154
+  },
+  {
+   "voice": "female2",
+   "cid": "622",
+   "words": 7,
+   "human_s": 3.29375,
+   "onnx_s": 2.78375,
+   "onnx_ratio": 0.8451612903225806,
+   "torch_s": 2.78375,
+   "torch_ratio": 0.8451612903225806
+  },
+  {
+   "voice": "female2",
+   "cid": "572",
+   "words": 8,
+   "human_s": 3.538125,
+   "onnx_s": 2.95375,
+   "onnx_ratio": 0.8348348348348348,
+   "torch_s": 2.95375,
+   "torch_ratio": 0.8348348348348348
+  },
+  {
+   "voice": "female2",
+   "cid": "3405",
+   "words": 11,
+   "human_s": 3.941875,
+   "onnx_s": 3.686875,
+   "onnx_ratio": 0.9353099730458221,
+   "torch_s": 3.686875,
+   "torch_ratio": 0.9353099730458221
+  },
+  {
+   "voice": "female2",
+   "cid": "850",
+   "words": 10,
+   "human_s": 3.176875,
+   "onnx_s": 3.12375,
+   "onnx_ratio": 0.9832775919732442,
+   "torch_s": 3.12375,
+   "torch_ratio": 0.9832775919732442
+  },
+  {
+   "voice": "female2",
+   "cid": "3214",
+   "words": 11,
+   "human_s": 3.538125,
+   "onnx_s": 3.80375,
+   "onnx_ratio": 1.075075075075075,
+   "torch_s": 3.80375,
+   "torch_ratio": 1.075075075075075
+  },
+  {
+   "voice": "female2",
+   "cid": "570",
+   "words": 7,
+   "human_s": 2.114375,
+   "onnx_s": 2.18875,
+   "onnx_ratio": 1.035175879396985,
+   "torch_s": 2.18875,
+   "torch_ratio": 1.035175879396985
+  },
+  {
+   "voice": "female2",
+   "cid": "2113",
+   "words": 8,
+   "human_s": 2.900625,
+   "onnx_s": 2.78375,
+   "onnx_ratio": 0.9597069597069597,
+   "torch_s": 2.78375,
+   "torch_ratio": 0.9597069597069597
+  },
+  {
+   "voice": "female2",
+   "cid": "120",
+   "words": 9,
+   "human_s": 3.984375,
+   "onnx_s": 3.6975,
+   "onnx_ratio": 0.9279999999999999,
+   "torch_s": 3.6975,
+   "torch_ratio": 0.9279999999999999
+  },
+  {
+   "voice": "female2",
+   "cid": "403",
+   "words": 11,
+   "human_s": 4.05875,
+   "onnx_s": 3.74,
+   "onnx_ratio": 0.9214659685863875,
+   "torch_s": 3.74,
+   "torch_ratio": 0.9214659685863875
+  },
+  {
+   "voice": "female2",
+   "cid": "1180",
+   "words": 11,
+   "human_s": 3.3575,
+   "onnx_s": 3.2725,
+   "onnx_ratio": 0.9746835443037974,
+   "torch_s": 3.2725,
+   "torch_ratio": 0.9746835443037974
+  },
+  {
+   "voice": "female2",
+   "cid": "3619",
+   "words": 10,
+   "human_s": 2.836875,
+   "onnx_s": 3.03875,
+   "onnx_ratio": 1.0711610486891385,
+   "torch_s": 3.03875,
+   "torch_ratio": 1.0711610486891385
+  },
+  {
+   "voice": "female2",
+   "cid": "2210",
+   "words": 9,
+   "human_s": 2.975,
+   "onnx_s": 2.921875,
+   "onnx_ratio": 0.9821428571428571,
+   "torch_s": 2.921875,
+   "torch_ratio": 0.9821428571428571
+  },
+  {
+   "voice": "female2",
+   "cid": "832",
+   "words": 8,
+   "human_s": 3.219375,
+   "onnx_s": 3.410625,
+   "onnx_ratio": 1.0594059405940595,
+   "torch_s": 3.410625,
+   "torch_ratio": 1.0594059405940595
+  },
+  {
+   "voice": "female2",
+   "cid": "3748",
+   "words": 7,
+   "human_s": 2.093125,
+   "onnx_s": 2.18875,
+   "onnx_ratio": 1.0456852791878173,
+   "torch_s": 2.18875,
+   "torch_ratio": 1.0456852791878173
+  },
+  {
+   "voice": "female2",
+   "cid": "1514",
+   "words": 8,
+   "human_s": 3.516875,
+   "onnx_s": 2.23125,
+   "onnx_ratio": 0.6344410876132931,
+   "torch_s": 2.23125,
+   "torch_ratio": 0.6344410876132931
+  },
+  {
+   "voice": "female2",
+   "cid": "2037",
+   "words": 8,
+   "human_s": 2.539375,
+   "onnx_s": 2.433125,
+   "onnx_ratio": 0.9581589958158995,
+   "torch_s": 2.433125,
+   "torch_ratio": 0.9581589958158995
+  },
+  {
+   "voice": "female2",
+   "cid": "3571",
+   "words": 9,
+   "human_s": 3.559375,
+   "onnx_s": 4.133125,
+   "onnx_ratio": 1.1611940298507462,
+   "torch_s": 4.133125,
+   "torch_ratio": 1.1611940298507462
+  },
+  {
+   "voice": "female2",
+   "cid": "2115",
+   "words": 9,
+   "human_s": 4.388125,
+   "onnx_s": 3.771875,
+   "onnx_ratio": 0.8595641646489105,
+   "torch_s": 3.771875,
+   "torch_ratio": 0.8595641646489105
+  },
+  {
+   "voice": "female2",
+   "cid": "2809",
+   "words": 9,
+   "human_s": 4.22875,
+   "onnx_s": 4.133125,
+   "onnx_ratio": 0.9773869346733668,
+   "torch_s": 4.133125,
+   "torch_ratio": 0.9773869346733668
+  },
+  {
+   "voice": "female2",
+   "cid": "678",
+   "words": 8,
+   "human_s": 3.9525,
+   "onnx_s": 3.1025,
+   "onnx_ratio": 0.7849462365591398,
+   "torch_s": 3.1025,
+   "torch_ratio": 0.7849462365591398
+  },
+  {
+   "voice": "female2",
+   "cid": "3473",
+   "words": 25,
+   "human_s": 0.159375,
+   "onnx_s": 10.975625,
+   "onnx_ratio": 68.86666666666667,
+   "torch_s": 10.975625,
+   "torch_ratio": 68.86666666666667
+  },
+  {
+   "voice": "female2",
+   "cid": "3351",
+   "words": 14,
+   "human_s": 4.579375,
+   "onnx_s": 4.44125,
+   "onnx_ratio": 0.9698375870069607,
+   "torch_s": 4.44125,
+   "torch_ratio": 0.9698375870069607
+  },
+  {
+   "voice": "female2",
+   "cid": "3423",
+   "words": 16,
+   "human_s": 6.640625,
+   "onnx_s": 6.725625,
+   "onnx_ratio": 1.0128,
+   "torch_s": 6.725625,
+   "torch_ratio": 1.0128
+  },
+  {
+   "voice": "female2",
+   "cid": "3448",
+   "words": 16,
+   "human_s": 6.39625,
+   "onnx_s": 6.236875,
+   "onnx_ratio": 0.9750830564784053,
+   "torch_s": 6.236875,
+   "torch_ratio": 0.9750830564784053
+  },
+  {
+   "voice": "female2",
+   "cid": "2386",
+   "words": 21,
+   "human_s": 7.055,
+   "onnx_s": 7.3525,
+   "onnx_ratio": 1.0421686746987953,
+   "torch_s": 7.3525,
+   "torch_ratio": 1.0421686746987953
+  },
+  {
+   "voice": "female2",
+   "cid": "1108",
+   "words": 13,
+   "human_s": 4.770625,
+   "onnx_s": 4.8025,
+   "onnx_ratio": 1.0066815144766148,
+   "torch_s": 4.8025,
+   "torch_ratio": 1.0066815144766148
+  },
+  {
+   "voice": "female2",
+   "cid": "803",
+   "words": 14,
+   "human_s": 6.26875,
+   "onnx_s": 6.18375,
+   "onnx_ratio": 0.9864406779661017,
+   "torch_s": 6.18375,
+   "torch_ratio": 0.9864406779661017
+  },
+  {
+   "voice": "female2",
+   "cid": "2575",
+   "words": 14,
+   "human_s": 5.5675,
+   "onnx_s": 4.090625,
+   "onnx_ratio": 0.734732824427481,
+   "torch_s": 4.090625,
+   "torch_ratio": 0.734732824427481
+  },
+  {
+   "voice": "female2",
+   "cid": "3712",
+   "words": 15,
+   "human_s": 4.7175,
+   "onnx_s": 5.2275,
+   "onnx_ratio": 1.1081081081081081,
+   "torch_s": 5.2275,
+   "torch_ratio": 1.1081081081081081
+  },
+  {
+   "voice": "female2",
+   "cid": "167",
+   "words": 14,
+   "human_s": 4.876875,
+   "onnx_s": 4.69625,
+   "onnx_ratio": 0.9629629629629629,
+   "torch_s": 4.69625,
+   "torch_ratio": 0.9629629629629629
+  },
+  {
+   "voice": "female2",
+   "cid": "1471",
+   "words": 15,
+   "human_s": 5.769375,
+   "onnx_s": 5.939375,
+   "onnx_ratio": 1.0294659300184161,
+   "torch_s": 5.939375,
+   "torch_ratio": 1.0294659300184161
+  },
+  {
+   "voice": "female2",
+   "cid": "1139",
+   "words": 20,
+   "human_s": 8.765625,
+   "onnx_s": 7.62875,
+   "onnx_ratio": 0.8703030303030304,
+   "torch_s": 7.62875,
+   "torch_ratio": 0.8703030303030304
+  },
+  {
+   "voice": "female2",
+   "cid": "206",
+   "words": 17,
+   "human_s": 6.831875,
+   "onnx_s": 6.916875,
+   "onnx_ratio": 1.0124416796267497,
+   "torch_s": 6.916875,
+   "torch_ratio": 1.0124416796267497
+  },
+  {
+   "voice": "female2",
+   "cid": "2184",
+   "words": 16,
+   "human_s": 6.003125,
+   "onnx_s": 5.27,
+   "onnx_ratio": 0.8778761061946903,
+   "torch_s": 5.27,
+   "torch_ratio": 0.8778761061946903
+  },
+  {
+   "voice": "female2",
+   "cid": "668",
+   "words": 16,
+   "human_s": 6.258125,
+   "onnx_s": 6.470625,
+   "onnx_ratio": 1.033955857385399,
+   "torch_s": 6.470625,
+   "torch_ratio": 1.033955857385399
+  },
+  {
+   "voice": "female2",
+   "cid": "3722",
+   "words": 20,
+   "human_s": 7.086875,
+   "onnx_s": 7.894375,
+   "onnx_ratio": 1.1139430284857572,
+   "torch_s": 7.894375,
+   "torch_ratio": 1.1139430284857572
+  },
+  {
+   "voice": "female2",
+   "cid": "2778",
+   "words": 14,
+   "human_s": 4.855625,
+   "onnx_s": 4.8025,
+   "onnx_ratio": 0.9890590809628009,
+   "torch_s": 4.8025,
+   "torch_ratio": 0.9890590809628009
+  }
+ ]
+}

@@ -5,6 +5,31 @@ and traps are in `METHODOLOGY.md`; raw output in `results/`.
 
 ---
 
+## 2026-10-08 — both engines, full run: the export is identical on every clip
+
+**Method.** First run with `torch_error: null` — our ONNX and C4IR's checkpoint both loaded
+and measured on all 190 digit-free clips, `lengthScale 1.0`, `noise_scale 0`.
+Raw: `results/rushing_20261008T085511Z_ls1.0.json`. Narrative: `REPORT.md`.
+
+**Result.**
+
+- **Engine agreement: `max |onnx_s − torch_s| = 0.00e+00` across 190/190 clips.** Sentence
+  fidelity 15/15 identical sample counts (min corr 0.9999999996); isolated-word fidelity
+  10/10 identical (min corr 0.9999999996).
+- Ratio by length, identical for both engines: 0.875 (1–2 words), 0.932 (3), 0.937 (4–6),
+  0.960 (7–12), 0.986 (13+). Model faster than the human on 72% of clips.
+- Isolated words: mean 0.132 s/syllable, both engines. `icunga` 0.372 s, 0.124 s/syllable.
+- Isolated-word raw peak by speaker: Female 1 **0.129**, Female 2 0.377, Male 0.435.
+  Female 1 quieter on 10/10 words and below 0.10 on 3/10.
+
+**Reading.** The earlier bit-identity result, taken on 10 words, now holds across the whole
+measured sample. Every measurement in this log describes C4IR's published model, not our
+conversion. The short-utterance rushing and the quiet isolated words are both theirs.
+
+**What would overturn it.** Nothing about the export. The interpretation still rests on the
+0.223 s/syllable isolated-word reference (n=6, different corpus and speaker), and on the
+assumed `female → sid 0` speaker mapping.
+
 ## 2026-10-06 — the ONNX export is bit-identical to C4IR's checkpoint, including on isolated words
 
 **Method.** Both engines loaded and run on the same token ids at `noise_scale=0`, speaker 0,
@@ -159,17 +184,20 @@ articulation.
 
 ---
 
-## 2026-10-06 — unresolved: a long tail where the model over-produces
+## 2026-10-06 — a long tail where the model over-produces — **RESOLVED 2026-10-08**
 
 **Method.** Same-text ratios, 190 clips.
 
-**Result.** Mean ratio 1.286 against a median of 0.945, with p95 at 1.118 — so the mean is
-dragged by outliers beyond the 95th percentile, on clips where the model generates *much*
-more audio than the human.
+**Result.** Mean ratio 1.286 against a median of 0.945, with p95 at 1.118 — the mean dragged
+by outliers beyond the 95th percentile.
 
-**Status.** Not characterised. These may be a separate failure mode (runaway or looping
-generation) rather than a timing error. Next step: isolate the clips with ratio > 1.5 and
-listen.
+**Resolution (2026-10-08).** Not a model failure mode: **one broken corpus recording**.
+`female2/3473` pairs a 25-word transcript with a 0.75-second file of digital silence (peak
+0.0001, RMS 0.000002), so the bench measured 0.16 s of "speech" against the model's 10.98 s
+— a ratio of 68.9. Excluding it, mean 1.286 → **0.929** and sd 4.917 → **0.123**. A scan
+found exactly one such clip: it is the only one in the sample below 0.15 human-seconds per
+word (0.006, against a median of 0.437). Logged as a third corpus defect alongside the
+`Err:508` rows and the truncated references.
 
 ---
 

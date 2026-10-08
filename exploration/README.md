@@ -15,6 +15,7 @@ of the recordings' quality.** Everything here is an attempt to support or break 
 | `README.md` | this file — orientation and status |
 | `METHODOLOGY.md` | how every measurement is made, and the traps we hit making them |
 | `FINDINGS.md` | dated log of results, each with its method and its caveats |
+| `REPORT.md` | where we stand: the current narrative summary, for the paper |
 | `notebooks/01_rushing_bench.py` | marimo: human vs model on identical text |
 | `results/` | machine-readable output, one JSON per run |
 
@@ -89,18 +90,20 @@ sample stays fixed across runs.
 
 ## Status
 
-Settled (see `FINDINGS.md`): the corpus is not rushed; the model matches the actress on
-long sentences and diverges monotonically as utterances shorten; the corpus contains no
-genuine single-word recordings.
+Settled (see `REPORT.md` for the full picture): the ONNX export is bit-identical to C4IR's
+checkpoint on all 190 measured clips, so the findings describe their published model; the
+corpus is not rushed; the model matches the actress on long sentences and diverges
+monotonically as utterances shorten; the corpus contains no genuine single-word recordings;
+isolated words are quiet as well as rushed, worst on Female 1.
 
 Open:
 
 - No ground truth for isolated words anywhere in the corpus, so the correct `lengthScale`
   for a single word is extrapolated, not measured. Needs either new recordings or
   forced-aligned utterance-final words.
-- A right-skewed tail of clips where the model produces *much* longer audio than the human
-  (mean ratio 1.29 vs median 0.95). Not yet characterised — these may be a separate
-  failure mode.
+- **Articulation is unassessed.** Everything measured so far is duration and level; whether
+  short words are actually *mispronounced* needs a native speaker listening to section 7.
+  This is the largest remaining gap.
 - Per-token durations are not exposed by the exported ONNX, blocking exact word cropping
   from carrier phrases.
 - Speaker mapping between corpus voices and model speaker ids is assumed, not documented.
