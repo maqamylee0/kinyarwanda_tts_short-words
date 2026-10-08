@@ -1,0 +1,65 @@
+[
+ {
+  "word": "umuembe",
+  "bare_s": 0.8,
+  "bare_evenness": 2.6666667461395264,
+  "crop_s": 0.39466666666666667,
+  "crop_evenness": 1.0,
+  "crop15_s": 0.5866666666666667,
+  "note": "skewed bare \u2014 crop should help"
+ },
+ {
+  "word": "avoka",
+  "bare_s": 0.8106666666666666,
+  "bare_evenness": 3.0,
+  "crop_s": 0.30933333333333335,
+  "crop_evenness": 1.0,
+  "crop15_s": 0.43733333333333335,
+  "note": "skewed bare \u2014 crop should help"
+ },
+ {
+  "word": "igitoki",
+  "bare_s": 1.0453333333333332,
+  "bare_evenness": 3.200000047683716,
+  "crop_s": 0.544,
+  "crop_evenness": 1.0,
+  "crop15_s": 0.768,
+  "note": "skewed bare \u2014 crop should help"
+ },
+ {
+  "word": "inanasi",
+  "bare_s": 1.056,
+  "bare_evenness": 2.6666667461395264,
+  "crop_s": 0.4693333333333333,
+  "crop_evenness": 1.0,
+  "crop15_s": 0.6506666666666666,
+  "note": "skewed bare \u2014 crop should help"
+ },
+ {
+  "word": "ipapayi",
+  "bare_s": 0.8853333333333333,
+  "bare_evenness": 3.0,
+  "crop_s": 0.5333333333333333,
+  "crop_evenness": 1.0,
+  "crop15_s": 0.736,
+  "note": "skewed bare \u2014 crop should help"
+ },
+ {
+  "word": "pome",
+  "bare_s": 0.704,
+  "bare_evenness": 2.0,
+  "crop_s": 0.37333333333333335,
+  "crop_evenness": 1.0,
+  "crop15_s": 0.5546666666666666,
+  "note": "skewed bare \u2014 crop should help"
+ },
+ {
+  "word": "indimu",
+  "bare_s": 0.6933333333333334,
+  "bare_evenness": 2.3333332538604736,
+  "crop_s": 0.2986666666666667,
+  "crop_evenness": 0.6666666865348816,
+  "crop15_s": 0.416,
+  "note": "skewed bare \u2014 crop should help"
+ }
+]

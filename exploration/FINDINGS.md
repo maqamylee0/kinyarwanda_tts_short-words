@@ -5,6 +5,45 @@ and traps are in `METHODOLOGY.md`; raw output in `results/`.
 
 ---
 
+## 2026-10-08 — seven more words: the skew is the norm, and a spelling trap
+
+**Method.** `kinya_word.py` on `umuembe, avoka, igitoki, inanasi, ipapayi, pome, indimu`,
+Female 1, `lengthScale 1.0`. Audio and a listening page in `results/listen_fruits/`.
+
+**Result.** Every one has a skewed bare allocation, and cropping evens all but one:
+
+| word | gloss | bare s | bare even | crop s | crop even |
+|---|---|---|---|---|---|
+| umuembe | mango (see spelling note) | 0.80 | 2.67 | 0.39 | 1.00 |
+| avoka | avocado | 0.81 | 3.00 | 0.31 | 1.00 |
+| igitoki | banana | 1.05 | 3.20 | 0.54 | 1.00 |
+| inanasi | pineapple | 1.06 | 2.67 | 0.47 | 1.00 |
+| ipapayi | papaya | 0.89 | 3.00 | 0.53 | 1.00 |
+| pome | apple | 0.70 | 2.00 | 0.37 | 1.00 |
+| indimu | lemon | 0.69 | 2.33 | 0.30 | **0.67** |
+
+Bare evenness ranges 2.00–3.20 across all seven. Combined with the earlier ten, the skew is
+the rule for isolated words, not a property of particular ones.
+
+**Correction to this log.** Earlier entries described a "32 ms, 3-frame floor". That was an
+over-generalisation from the first words sampled. Measuring the minimum across 17 words: the
+lowest is **2 frames (21.3 ms)**, on `umuembe` and `indimu`; 32 ms (3 frames) is the most
+common minimum but not a floor. The mechanism is unchanged — medial segments are squeezed to
+2–4 frames while the final vowel is stretched.
+
+**`indimu` is the exception.** Its second `i` gets 21 ms in *both* renderings, and the
+cropped version ends on a 21 ms `u`, giving evenness 0.67 — the opposite skew. Cropping may
+not rescue it. Unverified by ear.
+
+**Spelling trap — `umuembe` vs `umwembe`.** The requested spelling tokenizes as
+`u m u e mb e`; the standard spelling of mango, `umwembe`, tokenizes as `u mw e mb e`. These
+are different inputs and will produce different speech, and the wrong one fails silently —
+fluent, confident, wrong. Both are in the listening page. `umwembe` is also less skewed to
+begin with (bare evenness 1.78 against 2.67), which is itself a hint that it is the
+better-formed word.
+
+**Status.** Allocation measured; intelligibility unconfirmed for these seven.
+
 ## 2026-10-08 — the swallowed syllables: a distorted duration allocation, not a uniform rush
 
 **Prompted by** a native-speaker report that the model does not merely rush `icunga` but
@@ -29,7 +68,7 @@ phoneme for `icunga`:
 | **a** | **213.3** | 42.7 | 373.3 |
 
 In a sentence every phoneme gets ~43 ms. Alone, the medial vowel /u/ is crushed to 32 ms —
-the 3-frame floor — while the final /a/ is stretched to 213 ms. A 32 ms vowel between a
+three frames — while the final /a/ is stretched to 213 ms. A 32 ms vowel between a
 75 ms /c/ and a 53 ms /ng/ is perceptually swallowed, which is what the listener reports.
 
 **This is general, not specific to `icunga`.** Final-phoneme duration divided by the median
@@ -40,7 +79,8 @@ phoneme duration, across 10 isolated words:
 | isolated | **2.31** | 1.00 – 3.20 |
 | same word, last in a carrier phrase | **1.15** | 1.00 – 2.00 |
 
-Nine of ten isolated words hit the 32 ms floor on some medial segment.
+Every isolated word squeezes some medial segment to 2-4 frames (21-43 ms); the lowest
+observed is 2 frames (21.3 ms), on `umuembe` and `indimu`.
 
 **Result 3 — `lengthScale` cannot fix this.** It scales every phoneme uniformly, so the
 imbalance survives: `icunga` goes from 2.86 at `lengthScale 1.0` to 2.64 at 1.5. The word
@@ -68,8 +108,8 @@ and 1.5) are **correctly pronounced**; the bare renderings are not. The slowed b
 rendering was not among the correct ones, which matches the prediction that `lengthScale`
 cannot repair the allocation.
 
-So the chain is closed end to end: a measured cause (a medial phoneme pinned to the 32 ms
-floor while the final vowel takes ~2.3x the median), a measured fix (carrier synthesis plus
+So the chain is closed end to end: a measured cause (a medial phoneme squeezed to 21-32 ms
+while the final vowel takes ~2.3x the median), a measured fix (carrier synthesis plus
 alignment-exact cropping, evenness 1.00), and perceptual confirmation that the fix yields an
 intelligible word.
 

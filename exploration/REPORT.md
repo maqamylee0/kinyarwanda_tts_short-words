@@ -188,7 +188,7 @@ Claims this run supports directly:
    truncated references, and at least one silent recording paired with a full transcript.
 
 5. A mechanism for the segmental failure on isolated words: the duration predictor
-   allocates time unevenly, crushing medial phonemes to a 32 ms floor while stretching the
+   allocates time unevenly, squeezing medial phonemes to 21-32 ms while stretching the
    final vowel (final/median 2.31 isolated against 1.15 in a carrier). `lengthScale` cannot
    correct it; alignment-based cropping from a carrier can.
 

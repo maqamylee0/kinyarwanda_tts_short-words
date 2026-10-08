@@ -6,8 +6,8 @@
 """Synthesize a single Kinyarwanda word intelligibly.
 
 Asking kinya-flex-tts for a bare word gives a mispronounced one. Its duration predictor
-allocates time unevenly on isolated input: a medial phoneme is crushed to 32 ms — a hard
-3-frame floor — while the final vowel is stretched to roughly 2.3x the median. The middle
+allocates time unevenly on isolated input: a medial phoneme is squeezed to 21-32 ms (2-3 frames)
+while the final vowel is stretched to roughly 2.3x the median. The middle
 syllable is swallowed. A native speaker hears `icunga` as something closer to *ihuba*.
 
 `lengthScale` does not fix it. It scales every phoneme uniformly, so the imbalance survives
