@@ -153,13 +153,10 @@ articulation, it raises the level. For single-word use, Female 2 is the better d
 
 **Open:**
 
-- **Articulation: partly answered, see the 2026-10-08 entry in `FINDINGS.md`.** A native
-  speaker reports `icunga` rendered closer to *ihuba* — swallowed syllables, not just a fast
-  word. The mechanism is now measured: on isolated words the duration predictor crushes a
-  medial phoneme to the 32 ms floor while stretching the final vowel to ~2.3x the median.
-  `lengthScale` cannot fix it (it scales uniformly); cropping from a carrier phrase using
-  the model's alignment does, giving an even profile. **Still open:** whether the cropped
-  audio sounds correct to a Kinyarwanda speaker. Audio is in `results/listen_icunga/`.
+- **Articulation: answered.** See the 2026-10-08 entry in `FINDINGS.md`. A Kinyarwanda
+  speaker reported `icunga` rendered closer to *ihuba*, and has since confirmed that the
+  carrier-cropped renderings are correct while the bare ones are not. Cause, fix and
+  perceptual confirmation are all in hand.
 - **The isolated-word human reference is thin.** The 0.223 s/syllable figure is n=6, from a
   different corpus and a different speaker. The bit-identity result is unshakable; this
   comparison target is not.
@@ -195,6 +192,18 @@ Claims this run supports directly:
    final vowel (final/median 2.31 isolated against 1.15 in a carrier). `lengthScale` cannot
    correct it; alignment-based cropping from a carrier can.
 
-Claim **not** yet supported: that the carrier-cropped output is *correct* Kinyarwanda. The
-allocation is demonstrably even, but only a native speaker can confirm the word is now
-intelligible.
+6. A working remedy, confirmed by a native speaker: carrier synthesis plus
+   alignment-exact cropping produces an intelligible isolated word where direct synthesis
+   does not. Implemented in `exploration/kinya_word.py`.
+
+**The open items are now engineering, not science:**
+
+- **The ONNX cannot do this.** It emits only `y`, so the fix is unavailable on-device.
+  Shipping it in the Flutter app requires re-exporting with the attention as a second
+  output. C4IR's export notebook already computes the alignment internally (step 9b), so
+  this is a bounded change — and it is now a justified one rather than a speculative
+  nicety.
+- **Not every word needs it.** `inka` has an even bare profile already; cropping gives a
+  very short 0.17 s clip. `evenness()` tells you which words are affected.
+- **Scope untested.** Confirmed on `icunga` and `umuneke`. How broadly the remedy holds,
+  and whether the carrier should vary by word shape, is unmeasured.

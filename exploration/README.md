@@ -17,6 +17,7 @@ of the recordings' quality.** Everything here is an attempt to support or break 
 | `FINDINGS.md` | dated log of results, each with its method and its caveats |
 | `REPORT.md` | where we stand: the current narrative summary, for the paper |
 | `notebooks/01_rushing_bench.py` | marimo: human vs model on identical text |
+| `kinya_word.py` | the remedy: intelligible single-word synthesis via carrier + alignment crop |
 | `results/` | machine-readable output, one JSON per run |
 
 Shared with the rest of the repo, not duplicated here:

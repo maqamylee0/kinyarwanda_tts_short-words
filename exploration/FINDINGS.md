@@ -62,10 +62,25 @@ even profile:
 The cut is exact, not energy-based: cumulative frames x 256 give the sample boundaries, and
 the durations are verified to account for the waveform.
 
-**Status.** The timing explanation is measured and solid. Whether the cropped audio actually
-*sounds* correct to a Kinyarwanda speaker is **not yet confirmed** — audio for that judgement
-is in `results/listen_icunga/` (`*_A_bare_*` against `*_B_cropped_*`). Until someone listens,
-the claim is "the allocation is fixed", not "the word is fixed".
+**Status — CONFIRMED by a Kinyarwanda speaker, 2026-10-08.** Listening to the A/B set in
+`results/listen_icunga/`: the carrier-cropped renderings of `icunga` (at `lengthScale` 1.0
+and 1.5) are **correctly pronounced**; the bare renderings are not. The slowed bare
+rendering was not among the correct ones, which matches the prediction that `lengthScale`
+cannot repair the allocation.
+
+So the chain is closed end to end: a measured cause (a medial phoneme pinned to the 32 ms
+floor while the final vowel takes ~2.3x the median), a measured fix (carrier synthesis plus
+alignment-exact cropping, evenness 1.00), and perceptual confirmation that the fix yields an
+intelligible word.
+
+**Caveat — the fix is not needed for every word.** `inka` already has an even bare profile
+(`[139, 43, 139]`, evenness 1.00) and cropping it yields only 0.17 s, which may be too
+abrupt. The remedy applies to words whose *bare* allocation is skewed; `evenness()` in
+`kinya_word.py` reports that, so it can be checked per word rather than assumed.
+
+**Implementation.** `exploration/kinya_word.py` packages this: `KinyaWordSynth.say(word)`
+returns the cropped audio, `evenness()` reports the allocation ratio, and the CLI writes
+WAVs with `--also-bare` for comparison. Verified bit-identical to the clip confirmed above.
 
 **Note.** This partly retires the "no per-token durations" limitation: the ONNX export still
 emits only `y`, but the torch engine exposes the alignment, so exact cropping is available
