@@ -20,6 +20,37 @@ CC-BY-4.0 permits commercial use, unlike `facebook/mms-tts-kin` (CC-BY-NC-4.0).
 
 ---
 
+## Which do you need?
+
+The model's first input is `x: tensor(int64)` — it never sees text. So "just the model" is
+not a thing: something has to turn `"icunga"` into token ids using a 126-symbol vocabulary
+and a normalisation pass that spells numbers out with noun-class concord. That is 39 string
+operations, and ONNX has no equivalent ops, so it cannot live in the graph.
+
+There are two sensible bundles.
+
+| | **minimal** | **full kit** |
+|---|---|---|
+| reads sentences and phrases | yes | yes |
+| pronounces **single words** correctly | **no** | yes |
+| files beyond the model | 25 KB (vocab + 2 tokenizer files) | + alignment, cropping, engine |
+| API | `KinyaFlexMinimal.speak()` | `KinyaFlexTtsEngine.synthesize()` |
+| zip | `kinya-flex-tts-minimal.zip` | `kinya-flex-tts-kit.zip` |
+
+**Take the minimal bundle if your app reads phrases.** It is four small files plus the
+model, and `speak()` is the whole surface.
+
+**Take the full kit if your app ever says one word on its own** — a vocabulary drill, a
+word list, a tap-to-hear glossary. A bare word comes out mispronounced, and the fix needs
+the `durations` output and roughly 130 more lines. The rest of this document explains why,
+and is worth reading before deciding the minimal bundle is enough.
+
+Both ship the same 72 MB fp16 model.
+
+---
+
+---
+
 ## Why `durations` matters
 
 Ask this model for a bare word and it mispronounces it. Not "sounds a bit off" —
@@ -77,10 +108,24 @@ else from the source app is needed. The tokenizer's only Flutter dependency is `
 
 ### Getting the model
 
-Not on the Hub in this form. Export it from the 1.11 GB PyTorch checkpoint with
+It comes in the zip, at `assets/models/kinya_flex_tts.onnx` — **keep that filename**, it is
+what the engine's `modelAsset` constant points at.
+
+To rebuild it instead: export from the 1.11 GB PyTorch checkpoint with
 `export_kinya_flex_tts_colab.ipynb`, which strips the checkpoint to its generator, replaces
 an unexportable `torch.istft` with an equivalent inverse STFT, and works around four
 dynamic-shape bugs in the upstream model code. Step 10 produces the fp16 variant.
+
+Verify any replacement has both outputs before shipping it:
+
+```python
+import onnxruntime as ort
+s = ort.InferenceSession("kinya_flex_tts.onnx")
+print([o.name for o in s.get_outputs()])      # must be ['y', 'durations']
+```
+
+An export with only `y` predates this work. It will still read sentences, but the
+single-word path cannot run and the engine falls back to direct synthesis.
 
 **The export must use `dynamo=True`.** On torch 2.x the legacy tracer silently bakes the
 audio length in as a constant: the graph exports cleanly and passes `onnx.checker`, but
@@ -273,10 +318,13 @@ a branch-for-branch port of the Python, pinned by golden vectors. Do not refacto
 style.
 
 ```bash
+# the tests import package:kinyarwanda_tts/... — point them at your own package first
+sed -i 's|package:kinyarwanda_tts/|package:YOUR_PACKAGE/|' test/*.dart
 flutter test test/kinya_flex_tokenizer_test.dart
 ```
 
 28 golden cases generated from the real Python implementation. **Run these after copying.**
+The files in `lib/` need no such edit — they import each other by relative path.
 
 One deliberate divergence: Dart's ints are 64-bit where Python's are arbitrary-precision, so
 digit strings too long to parse are read out digit by digit.
