@@ -18,6 +18,7 @@ of the recordings' quality.** Everything here is an attempt to support or break 
 | `REPORT.md` | where we stand: the current narrative summary, for the paper |
 | `notebooks/01_rushing_bench.py` | marimo: human vs model on identical text |
 | `kinya_word.py` | the remedy: intelligible single-word synthesis via carrier + alignment crop |
+| `FLUTTER_INTEGRATION.md` | shipping the fp16 model in a Flutter app, for someone outside this project |
 | `results/` | machine-readable output, one JSON per run |
 | `models/` | exported weights — **not** in git, 140 MB is over GitHub's limit |
 
